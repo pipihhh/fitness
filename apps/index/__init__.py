@@ -1,6 +1,6 @@
 from flask.blueprints import Blueprint
-import importlib
+from utils.import_lib import register
 
 
 ix = Blueprint("index", __name__, template_folder="./templates", static_folder="./static")
-importlib.import_module("apps.index.views.index")
+register("apps.index.views.index")
