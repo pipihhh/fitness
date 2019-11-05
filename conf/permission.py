@@ -8,6 +8,11 @@ NORMAL = 0o0000001  # 普通的用户权限 只有修改自己的信息的权限
 
 
 def permission_valid(permission):
+    """
+    装饰器，校验权限，想要校验权限的方法前加装饰器
+    :param permission: 权限的值
+    :return: 如果符合权限则执行方法，否则返回一个json
+    """
     def wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):

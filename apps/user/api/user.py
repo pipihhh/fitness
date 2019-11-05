@@ -138,6 +138,13 @@ class User(Resource):
         return data
 
     def _delete_user(self, user_id, connection):
+        """
+        删除一个用户的具体逻辑，包括判断用户是否存在等，此方法如果用户不存在会
+        抛出异常
+        :param user_id: 想要删除的用户的id
+        :param connection: 数据库连接的conn对象
+        :return: 抛出异常或者返回response对象
+        """
         cursor = connection.cursor()
         user = get_one(cursor, SelectMap.user_valid_by_id, user_id)
         response = Response()
