@@ -37,7 +37,7 @@ class SelectMap(object):
     """
 
     user_valid_by_id = """
-        SELECT COUNT(1) FROM ezgym.user WHERE id = %s
+        SELECT id,password FROM ezgym.user WHERE id = %s AND delete_flag = 0
     """
 
 
@@ -47,4 +47,23 @@ class DeleteMap(object):
     """
     user_info_by_user_id = """
         UPDATE ezgym.user_info SET delete_flag = 1 WHERE id = %s
+    """
+
+
+class UpdateMap(object):
+    update_avatar_by_user_id = """
+        UPDATE ezgym.user_info SET avatar = ? WHERE user_id = ?
+    """
+
+    update_user_info_by_user_id = """
+        UPDATE ezgym.user_info SET phone=?,email=?,gender=?,avatar=?,age=?,nick_name=?,description=?
+        WHERE user_id=?
+    """
+
+    update_user_by_id = """
+        UPDATE ezgym.user SET account = ?, password = ? WHERE id = ? AND delete_flag = 0
+    """
+
+    update_password_by_id = """
+        UPDATE ezgym.user SET password = ? WHERE id = ? AND delete_flag = 0
     """

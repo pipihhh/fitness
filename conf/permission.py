@@ -1,6 +1,10 @@
 from functools import wraps
 from flask import g, jsonify
 from general.response import Response
+from conf.code import PERMISSION_ERROR
+
+
+__all__ = ("ADMIN", "NORMAL", "permission_valid")
 
 
 ADMIN = 0o11111111  # 管理员权限
@@ -21,7 +25,7 @@ def permission_valid(permission):
             if permission & user_permission == permission:
                 return func(*args, **kwargs)
             else:
-                response.code = 403
+                response.code = PERMISSION_ERROR
                 response.errno = 1
                 response.data = {"msg": "权限不足"}
                 return jsonify(response.dict_data)

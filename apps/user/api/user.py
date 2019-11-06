@@ -1,5 +1,7 @@
 import re
+import os
 import uuid
+import json
 import datetime
 from flask_restful import Resource
 from general.vaild import BaseValid, add_arg
@@ -8,9 +10,12 @@ from general.exception import *
 from general.trace import trace
 from general.db_pool import *
 from general.password_handler import md5
-from general.sql_map import InsertMap, SelectMap, DeleteMap
-from conf.permission import permission_valid, ADMIN
-from flask import request, jsonify
+from general.sql_map import InsertMap, SelectMap, DeleteMap, UpdateMap
+from utils.error_handler import init_key_error_handler
+from utils.date_utils import get_exp_str, get_now
+from utils.secert import encode_base64, get_jwt
+from conf.permission import permission_valid, ADMIN, NORMAL
+from flask import request, jsonify, current_app
 from flask_restful.reqparse import RequestParser
 
 parser = RequestParser()
@@ -33,23 +38,39 @@ class User(Resource):
         connection = pool.connection()
         cursor = connection.cursor()
         try:
-            ret = get_one(cursor, SelectMap.user_info_by_user_id, [account, password])
+            ret = get_one(cursor, SelectMap.user_info_with_login, [account, password])
+            if ret is None:
+                raise UserDoesNotExistException("用户不存在")
             response.data = {
                 "id": ret[0], "account": ret[1],
                 "permission": ret[2], "phone": ret[3],
                 "email": ret[4], "gender": ret[5],
-                "avatar": ret[6], "description": ret[7]
+                "avatar": ret[6], "description": ret[7],
+                "token": self._make_jwt(ret)
             }
+        except UserDoesNotExistException as e:
+            init_key_error_handler(response, e)
         except Exception as e:
             response.code = 500
             response.errno = 1
             response.data = {
                 "msg": "获取用户失败:" + str(e)
             }
+            import traceback
+            traceback.print_exc()
         finally:
             cursor.close()
             connection.close()
         return jsonify(response.dict_data)
+
+    def _make_jwt(self, user):
+        config = current_app.config
+        header = {"typ": config["JWT_TYPE"], "alg": config["JWT_ALG"]}
+        payload = {"id": user[0], "permission": user[2], "exp": get_exp_str(), "iat": get_now()}
+        return get_jwt(
+            encode_base64(json.dumps(header)), encode_base64(json.dumps(payload)),
+            config["JWT_ALG"]
+        )
 
     def post(self):
         response = Response()
@@ -80,8 +101,97 @@ class User(Resource):
             connection.close()
         return jsonify(response.dict_data)
 
+    @permission_valid(NORMAL)
     def put(self):
-        pass
+        response = Response()
+        connection = pool.connection()
+        try:
+            tag = request.json["tag"]
+            user_id = request.json["id"]
+            getattr(self, "_update_" + tag)(connection, user_id)
+            response.data = {"msg": "ok"}
+        except KeyError or AttributeError or IllegalTokenException as e:
+            init_key_error_handler(response, e)
+        finally:
+            connection.close()
+        return jsonify(response.dict_data)
+
+    def _update_avatar(self, connection, user_id):
+        """
+        此方法用来修改用户的头像，此方法适用于普通用户和管理员，普通用户只拥有修改自己头像的权限
+        此时在请求中需要携带avatar，其中值为对应的文件名而不应该是路径，否则此方法会报错
+        :param connection: 数据库连接对象 不是cursor对象
+        :param user_id: 要修改的用户的id
+        :return:
+        """
+        avatar = request.json["avatar"]
+        image_path = os.path.join(current_app.config["MEDIA_DIR"], avatar)
+        if not os.path.isfile(image_path):
+            raise InvalidArgumentException("avatar的格式错误!")
+        avatar = current_app.config["MEDIA_URL"] + avatar
+        if self._valid_current_permission(user_id):
+            cursor = connection.cursor()
+            try:
+                update_sql_execute(cursor, UpdateMap.update_avatar_by_user_id, [avatar, user_id])
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                connection.commit()
+                raise
+            finally:
+                cursor.close()
+
+    def _update_all(self, connection, user_id):
+        cursor = connection.cursor()
+        args = parser.parse_args()
+        valid = UserValid()
+        add_arg(valid, args)
+        ret = valid.valid_data()
+        if ret:
+            err_msg = "参数格式有误:" + ",".join(ret)
+            raise IllegalTokenException(err_msg)
+        try:
+            params = valid.clean_data
+            user_info_args = [
+                params["phone"], params.get("email"), params["gender"], params.get("avatar"),
+                params["age"], params["nick_name"], params.get("nick_name"), user_id
+            ]
+            user_args = [params["account"], md5(params["password"]), user_id]
+            update_sql_execute(cursor, UpdateMap.update_user_info_by_user_id, user_info_args)
+            update_sql_execute(cursor, UpdateMap.update_user_by_id, user_args)
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            connection.commit()
+            raise
+        finally:
+            cursor.close()
+
+    def _update_password(self, connection, user_id):
+        cursor = connection.cursor()
+        valid = UserValid()
+        add_arg(valid, request.json)
+        ret = valid.valid_data()
+        if self._valid_current_permission(user_id) and not ret:
+            try:
+                update_sql_execute(cursor, UpdateMap.update_password_by_id,
+                                   [md5(valid.clean_data["password"]), user_id])
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                connection.commit()
+                raise
+            finally:
+                cursor.close()
+        string = None
+        if ret:
+            string = "参数有误:" + ",".join(ret.values())
+        raise InvalidArgumentException(string or "权限错误")
+
+    def _valid_current_permission(self, user_id):
+        current_id = getattr(request, "user")["id"]  # 当前发起请求的用户的id
+        current_permission = getattr(request, "user")["permission"]  # 当前用户的权限
+        return current_id == user_id or current_permission & ADMIN == ADMIN
 
     @permission_valid(ADMIN)
     def delete(self):
@@ -190,3 +300,36 @@ class UserValid(BaseValid):
     def gender_valid(self, gender):
         if gender != 0 and gender != 1:
             raise InvalidArgumentException("错误的性别")
+
+    def nick_name_valid(self, nick_name):
+        if len(nick_name) >= 30:
+            raise InvalidArgumentException("昵称过长")
+
+    def avatar_valid(self, avatar):
+        image_path = os.path.join(current_app.config["MEDIA_DIR"], avatar)
+        if not os.path.isfile(image_path):
+            raise InvalidArgumentException("avatar的格式错误!")
+        setattr(self, "avatar", current_app.config["MEDIA_URL"] + avatar)
+
+    def permission_valid(self, permission):
+        import conf.permission
+        p_set = set()
+        for key in conf.permission.__all__:
+            if key.isupper():
+                p_set.add(int(getattr(conf.permission, key)))
+        if permission not in p_set:
+            raise InvalidArgumentException("权限参数不正确")
+
+    def account_valid(self, account):
+        if len(account) >= 18:
+            raise InvalidArgumentException("账号长度过长")
+
+    def password_valid(self, password):
+        user_id = request.json.get("id") or getattr(request, "user")["id"]
+        connection = pool.connection()
+        cursor = connection.cursor()
+        user = get_one(cursor, SelectMap.user_valid_by_id, user_id)
+        if user:
+            real_password = user[-1]
+            if md5(password) == real_password:
+                raise InvalidArgumentException("密码相同!")

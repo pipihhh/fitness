@@ -19,8 +19,8 @@ def jwt_handler():
         payload = decode_base64(payload)
         try:
             payload_handler(payload)
-            header_handler(header)
-            signature_handler(header, payload, signature)
+            alg = header_handler(header)
+            signature_handler(header, payload, signature, alg)
         except TokenTimeOutException as e:
             response.code = PERMISSION_ERROR
             response.errno = 1
@@ -28,7 +28,7 @@ def jwt_handler():
         except KeyError or IndexError or IllegalTokenException as e:
             response.code = FORMAT_ERROR
             response.errno = 1
-            response.data = {"msg": "错误的token"}
+            response.data = {"msg": "错误的token:" + str(e)}
         except Exception as e:
             response.code = SERVER_ERROR
             response.errno = 1
@@ -43,7 +43,7 @@ def jwt_handler():
 def payload_handler(payload):
     now = datetime.datetime.now()
     exp = payload.get("exp", "1999-12-30 00:00:00")
-    exp = datetime.datetime.strptime(exp, "%Y-%m-%d %H:%M:S")
+    exp = datetime.datetime.strptime(exp, "%Y-%m-%d %H:%M:%S")
     if now > exp:
         raise TokenTimeOutException("Token已失效")
     _id = payload["id"]
@@ -54,11 +54,14 @@ def payload_handler(payload):
 def header_handler(header):
     typ = header["typ"]
     alg = header["alg"]
-    if typ != "JWT" or alg != "HS256":
+    if typ != current_app.config["JWT_TYPE"] or alg != current_app.config["JWT_ALG"]:
         raise IllegalTokenException("非法的Token!")
+    return alg
 
 
-def signature_handler(header, payload, signature):
-    mock = get_jwt(encode_base64(json.dumps(header)), encode_base64(json.dumps(payload))).split(".")[-1]
+def signature_handler(header, payload, signature, alg):
+    mock = get_jwt(
+        encode_base64(json.dumps(header)), encode_base64(json.dumps(payload)), alg
+    ).split(".")[-1]
     if mock != signature:
         raise IllegalTokenException("非法的Token!")

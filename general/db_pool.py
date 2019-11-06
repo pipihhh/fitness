@@ -32,3 +32,8 @@ def insert_sql_execute(cursor, sql, args):
 def delete_sql_execute(cursor, sql, args):
     ret = cursor.execute(sql, args)
     return ret
+
+
+def update_sql_execute(cursor, sql, args):
+    ret = cursor.execute(sql, args)
+    return ret

@@ -1,3 +1,6 @@
+import os
+
+
 class BaseConfig(object):
     """
     默认的配置类，包括数据库连接池的配置和密码加盐的配置
@@ -11,7 +14,12 @@ class BaseConfig(object):
     DB_CHARSET = "utf8"
     DEBUG = True
     SALT = "jsjkfhaskjhdjkashkfj"
+    JWT_TYPE = "JWT"
+    JWT_ALG = "sha256"
+    EXP_MIN = 5
+    DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 class DefaultConfig(BaseConfig):
-    pass
+    MEDIA_DIR = os.path.join(os.getcwd(), "media", "images")
+    MEDIA_URL = "/media/images"
