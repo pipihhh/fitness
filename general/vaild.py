@@ -2,11 +2,13 @@ from copy import deepcopy
 
 
 class BaseValid(object):
-    def __init__(self):
+    def __init__(self, kwargs=None):
         self._err_map = {}
         self._valid_flag = None
         self._copy_flag = False
         self._cache = {}
+        if kwargs is not None:
+            add_arg(self, kwargs)
 
     def _filter(self):
         for arg_name in self.__dict__:
@@ -31,11 +33,12 @@ class BaseValid(object):
             self._cache = deepcopy(self.__dict__)
             self._cache.pop("_err_map")
             self._cache.pop("_valid_flag")
+            self._cache.pop("_copy_flag")
             self._copy_flag = True
         return self._cache
 
 
 def add_arg(obj, args):
     for arg, val in args.items():
-        if not hasattr(obj, arg):
+        if not hasattr(obj, arg) and val is not None:
             setattr(obj, arg, val)

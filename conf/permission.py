@@ -7,8 +7,8 @@ from conf.code import PERMISSION_ERROR
 __all__ = ("ADMIN", "NORMAL", "permission_valid")
 
 
-ADMIN = 0o11111111  # 管理员权限
-NORMAL = 0o0000001  # 普通的用户权限 只有修改自己的信息的权限
+ADMIN = 0b11111111  # 管理员权限  255
+NORMAL = 0b00000001  # 普通的用户权限 只有修改自己的信息的权限 1
 
 
 def permission_valid(permission):

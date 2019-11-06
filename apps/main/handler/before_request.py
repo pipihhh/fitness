@@ -1,7 +1,9 @@
-from flask import request, jsonify
+from flask import request, jsonify, g
 from utils.secert import *
 from general.exception import TokenTimeOutException, IllegalTokenException
 from general.response import Response
+from general.db_pool import pool, get_one
+from general.sql_map import SelectMap
 from conf.code import *
 import datetime
 
@@ -48,7 +50,14 @@ def payload_handler(payload):
         raise TokenTimeOutException("Token已失效")
     _id = payload["id"]
     permission = payload["permission"]
+    password = payload["password"]
+    connection = pool.connection()
+    cursor = connection.cursor()
+    user = get_one(cursor, SelectMap.user_valid_by_id, [_id, ])
+    if user[1] != password:
+        raise TokenTimeOutException("Token已失效")
     setattr(request, "user", {"id": _id, "permission": permission})
+    setattr(g, "user", {"id": _id, "permission": permission})
 
 
 def header_handler(header):

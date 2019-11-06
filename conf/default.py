@@ -16,7 +16,7 @@ class BaseConfig(object):
     SALT = "jsjkfhaskjhdjkashkfj"
     JWT_TYPE = "JWT"
     JWT_ALG = "sha256"
-    EXP_MIN = 5
+    EXP_MIN = 30
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 

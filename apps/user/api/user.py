@@ -15,7 +15,7 @@ from utils.error_handler import init_key_error_handler
 from utils.date_utils import get_exp_str, get_now
 from utils.secert import encode_base64, get_jwt
 from conf.permission import permission_valid, ADMIN, NORMAL
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, g
 from flask_restful.reqparse import RequestParser
 
 parser = RequestParser()
@@ -24,14 +24,19 @@ parser.add_argument("password", type=str, required=True)
 parser.add_argument("permission", type=int, required=True)
 parser.add_argument("phone", type=str, required=True)
 parser.add_argument("email", type=str)
-parser.add_argument("gender", type=int, required=True)
+parser.add_argument("gender", type=int, required=True)  # 0男1女
 parser.add_argument("age", type=int, required=True)
 parser.add_argument("nick_name", type=str, required=True)
 parser.add_argument("description", type=str)
+parser.add_argument("avatar", type=str)
 
 
 class User(Resource):
     def get(self):
+        """
+        get方法的接口，获取单个的用户，通过账号密码，如果用户存在，则返回用户信息和token
+        :return:
+        """
         account = request.json["account"]
         password = md5(request.json["password"])
         response = Response()
@@ -49,30 +54,40 @@ class User(Resource):
                 "token": self._make_jwt(ret)
             }
         except UserDoesNotExistException as e:
-            init_key_error_handler(response, e)
+            init_key_error_handler(response, e, "提示:")
         except Exception as e:
             response.code = 500
             response.errno = 1
             response.data = {
                 "msg": "获取用户失败:" + str(e)
             }
-            import traceback
-            traceback.print_exc()
         finally:
             cursor.close()
             connection.close()
         return jsonify(response.dict_data)
 
     def _make_jwt(self, user):
+        """
+        为用户生成token，iat代表了签发token的时间，exp代表了超时时间 和配置有关
+        :param user:
+        :return:
+        """
         config = current_app.config
         header = {"typ": config["JWT_TYPE"], "alg": config["JWT_ALG"]}
-        payload = {"id": user[0], "permission": user[2], "exp": get_exp_str(), "iat": get_now()}
+        payload = {
+            "id": user[0], "permission": user[2], "password": user[8],
+            "exp": get_exp_str(), "iat": get_now()
+        }
         return get_jwt(
             encode_base64(json.dumps(header)), encode_base64(json.dumps(payload)),
             config["JWT_ALG"]
         )
 
     def post(self):
+        """
+        post方法，添加用户，会进行参数校验
+        :return:
+        """
         response = Response()
         args = parser.parse_args()
         valid = UserValid()
@@ -91,26 +106,28 @@ class User(Resource):
             response.code = 405
             response.errno = 1
             response.data = {"msg": str(e)}
-        except Exception as e:
+        except Exception:
             response.code = 500
             response.data = trace()
             response.errno = 1
-            import traceback
-            traceback.print_exc()
         finally:
             connection.close()
         return jsonify(response.dict_data)
 
     @permission_valid(NORMAL)
     def put(self):
+        """
+        修改，修改用户信息使用此方法
+        :return:
+        """
         response = Response()
         connection = pool.connection()
         try:
             tag = request.json["tag"]
-            user_id = request.json["id"]
+            user_id = request.json.get("id") or getattr(g, "user")["id"]
             getattr(self, "_update_" + tag)(connection, user_id)
             response.data = {"msg": "ok"}
-        except KeyError or AttributeError or IllegalTokenException as e:
+        except (KeyError, AttributeError, InvalidArgumentException) as e:
             init_key_error_handler(response, e)
         finally:
             connection.close()
@@ -141,6 +158,23 @@ class User(Resource):
             finally:
                 cursor.close()
 
+    def _update_description(self, connection, user_id):
+        cursor = connection.cursor()
+        valid = UserValid(request.json)
+        description = valid.clean_data["description"]
+        print(description)
+        try:
+            ret = update_sql_execute(cursor, UpdateMap.update_description_by_id, [description, user_id])
+            if ret != 1:
+                raise InvalidArgumentException("参数有误，修改失败")
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            connection.commit()
+            raise
+        finally:
+            cursor.close()
+
     def _update_all(self, connection, user_id):
         cursor = connection.cursor()
         args = parser.parse_args()
@@ -153,7 +187,7 @@ class User(Resource):
         try:
             params = valid.clean_data
             user_info_args = [
-                params["phone"], params.get("email"), params["gender"], params.get("avatar"),
+                params["phone"], params.get("email"), params["gender"], params["avatar"],
                 params["age"], params["nick_name"], params.get("nick_name"), user_id
             ]
             user_args = [params["account"], md5(params["password"]), user_id]
@@ -183,6 +217,7 @@ class User(Resource):
                 raise
             finally:
                 cursor.close()
+                return
         string = None
         if ret:
             string = "参数有误:" + ",".join(ret.values())
@@ -204,7 +239,7 @@ class User(Resource):
             response.code = 405
             response.errno = 1
             response.data = {"msg": str(e)}
-        except KeyError as e:
+        except KeyError:
             response.code = 405
             response.errno = 1
             response.data = {"msg": "你必须传一个id"}
@@ -278,10 +313,10 @@ class User(Resource):
 
 
 class UserValid(BaseValid):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._regx_phone = re.compile(r"1[3|5|7|8|9]\d{9}")
         self._regx_email = re.compile(r"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*")
-        BaseValid.__init__(self)
+        BaseValid.__init__(self, *args, **kwargs)
 
     def phone_valid(self, phone):
         if len(phone) != 11:
@@ -309,7 +344,7 @@ class UserValid(BaseValid):
         image_path = os.path.join(current_app.config["MEDIA_DIR"], avatar)
         if not os.path.isfile(image_path):
             raise InvalidArgumentException("avatar的格式错误!")
-        setattr(self, "avatar", current_app.config["MEDIA_URL"] + avatar)
+        self.__dict__["avatar"] = current_app.config["MEDIA_URL"] + avatar
 
     def permission_valid(self, permission):
         import conf.permission
@@ -325,11 +360,22 @@ class UserValid(BaseValid):
             raise InvalidArgumentException("账号长度过长")
 
     def password_valid(self, password):
-        user_id = request.json.get("id") or getattr(request, "user")["id"]
-        connection = pool.connection()
-        cursor = connection.cursor()
-        user = get_one(cursor, SelectMap.user_valid_by_id, user_id)
-        if user:
-            real_password = user[-1]
-            if md5(password) == real_password:
-                raise InvalidArgumentException("密码相同!")
+        if request.method == "PUT":
+            user_id = request.json.get("id") or getattr(request, "user")["id"]
+            connection = pool.connection()
+            cursor = connection.cursor()
+            user = get_one(cursor, SelectMap.user_valid_by_id, user_id)
+            if user:
+                real_password = user[-1]
+                if md5(password) == real_password and request.json["tag"] == "password":
+                    raise InvalidArgumentException("密码相同!")
+                if user[0] != user_id and user[2] & ADMIN != ADMIN:
+                    raise InvalidArgumentException("权限不足")
+                return
+            raise InvalidArgumentException("用户不存在")
+
+    def description_valid(self, description):
+        if len(description) > 300:
+            raise InvalidArgumentException("描述过长")
+        description = description.replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;")
+        setattr(self, "description", description)

@@ -27,17 +27,17 @@ class SelectMap(object):
     user_info_with_login = """
         SELECT u.id,u.account,u.permission,
         ui.phone,ui.email,ui.gender,ui.avatar,
-        ui.description
+        ui.description,u.password
         FROM ezgym.user u INNER JOIN ezgym.user_info ui
         ON u.id = ui.user_id WHERE u.account = %s AND u.delete_flag = 0 AND ui.delete_flag = 0 AND u.password = %s
     """
 
     user_valid = """
-        SELECT COUNT(1) FROM ezgym.user WHERE account = %s
+        SELECT id,account,password FROM ezgym.user WHERE account = %s
     """
 
     user_valid_by_id = """
-        SELECT id,password FROM ezgym.user WHERE id = %s AND delete_flag = 0
+        SELECT id,password,permission FROM ezgym.user WHERE id = %s AND delete_flag = 0
     """
 
 
@@ -46,24 +46,28 @@ class DeleteMap(object):
         UPDATE ezgym.user SET delete_flag = 1 WHERE id = %s
     """
     user_info_by_user_id = """
-        UPDATE ezgym.user_info SET delete_flag = 1 WHERE id = %s
+        UPDATE ezgym.user_info SET delete_flag = 1 WHERE user_id = %s
     """
 
 
 class UpdateMap(object):
     update_avatar_by_user_id = """
-        UPDATE ezgym.user_info SET avatar = ? WHERE user_id = ?
+        UPDATE ezgym.user_info SET avatar = %s WHERE user_id = %s
     """
 
     update_user_info_by_user_id = """
-        UPDATE ezgym.user_info SET phone=?,email=?,gender=?,avatar=?,age=?,nick_name=?,description=?
-        WHERE user_id=?
+        UPDATE ezgym.user_info SET phone=%s,email=%s,gender=%s,avatar=%s,age=%s,nick_name=%s,description=%s
+        WHERE user_id=%s
     """
 
     update_user_by_id = """
-        UPDATE ezgym.user SET account = ?, password = ? WHERE id = ? AND delete_flag = 0
+        UPDATE ezgym.user SET account = %s, password = %s WHERE id = %s AND delete_flag = 0
     """
 
     update_password_by_id = """
-        UPDATE ezgym.user SET password = ? WHERE id = ? AND delete_flag = 0
+        UPDATE ezgym.user SET password = %s WHERE id = %s AND delete_flag = 0
+    """
+
+    update_description_by_id = """
+        UPDATE ezgym.user_info SET description = %s WHERE user_id = %s
     """
