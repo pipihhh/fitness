@@ -18,6 +18,11 @@ class BaseConfig(object):
     JWT_ALG = "sha256"
     EXP_MIN = 30
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+    PAGE_OFFSET = 3   # 分页相关，每页显示的用户数
+    THROTTLE_SECONDS = 5  # 5秒内只能访问xx次
+    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}   # 允许的文件上传格式
+    MAX_CONTENT_LENGTH = 6 * 1024 * 1024  # 允许的文件大小
+    UPLOAD_FILE_KEY = "media"
 
 
 class DefaultConfig(BaseConfig):

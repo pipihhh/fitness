@@ -9,6 +9,14 @@ class InsertMap(object):
         ) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
         """
 
+    course = """
+        INSERT INTO ezgym.course(type, name, create_time, level, burning) VALUES (%s,%s,%s,%s,%s)
+    """
+
+    action = """
+        INSERT INTO ezgym.course_action(course_id, content, picture, sequence) VALUES (%s,%s,%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -38,6 +46,27 @@ class SelectMap(object):
 
     user_valid_by_id = """
         SELECT id,password,permission FROM ezgym.user WHERE id = %s AND delete_flag = 0
+    """
+
+    # 查询所有的用户 带分页
+    user_list_by_offset = """
+        SELECT u.id,u.permission,u.account,
+        ui.nick_name,ui.age,ui.avatar,ui.gender,ui.email,ui.phone,ui.description,
+        ui.create_time
+        FROM ezgym.user u INNER JOIN ezgym.user_info ui ON u.id=ui.user_id
+        WHERE u.delete_flag=0 AND ui.delete_flag=0 AND u.id>%s ORDER BY u.id LIMIT %s
+    """
+
+    user_count = """
+        SELECT COUNT(1) FROM ezgym.user WHERE delete_flag=0;
+    """
+
+    course_by_create = """
+        SELECT id, type, name, create_time, level, burning FROM ezgym.course WHERE name = %s
+    """
+
+    course_by_id = """
+        SELECT id,name,type,level,burning,create_time FROM ezgym.course WHERE id = %s AND delete_flag = 0
     """
 
 

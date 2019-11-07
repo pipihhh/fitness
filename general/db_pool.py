@@ -37,3 +37,33 @@ def delete_sql_execute(cursor, sql, args):
 def update_sql_execute(cursor, sql, args):
     ret = cursor.execute(sql, args)
     return ret
+
+
+def execute_sql(sql, args):
+    connection = pool.connection()
+    cursor = connection.cursor()
+    ret = None
+    try:
+        ret = cursor.execute(sql, args)
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        connection.commit()
+        raise
+    finally:
+        cursor.close()
+        connection.close()
+    return ret
+
+
+def execute_query_sql(sql, args, key=lambda c: c.fetchall()):
+    connection = pool.connection()
+    cursor = connection.cursor()
+    ret = None
+    try:
+        cursor.execute(sql, args)
+        ret = key(cursor)
+    finally:
+        cursor.close()
+        connection.close()
+    return ret

@@ -1,1 +1,1 @@
-from apps.user.api import user
+from apps.user.api import user, user_list

@@ -69,7 +69,7 @@ class User(Resource):
     def _make_jwt(self, user):
         """
         为用户生成token，iat代表了签发token的时间，exp代表了超时时间 和配置有关
-        :param user:
+        :param user:查到的用户对象信息组成的元组 具体的对应字段在sql_map中查看
         :return:
         """
         config = current_app.config

@@ -142,8 +142,9 @@ CREATE TABLE `course` (
   `level` int(11) NOT NULL,
   `burning` int(11) NOT NULL,
   `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `course_name_uindex` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -152,6 +153,7 @@ CREATE TABLE `course` (
 
 LOCK TABLES `course` WRITE;
 /*!40000 ALTER TABLE `course` DISABLE KEYS */;
+INSERT INTO `course` VALUES (5,1,'腹肌撕裂者','2019-11-07 17:21:07',3,30,0);
 /*!40000 ALTER TABLE `course` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,7 +171,7 @@ CREATE TABLE `course_action` (
   `picture` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `sequence` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,6 +180,7 @@ CREATE TABLE `course_action` (
 
 LOCK TABLES `course_action` WRITE;
 /*!40000 ALTER TABLE `course_action` DISABLE KEYS */;
+INSERT INTO `course_action` VALUES (1,5,'这是一个非常酷的动作','aaa.jpg',1);
 /*!40000 ALTER TABLE `course_action` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -250,7 +253,7 @@ CREATE TABLE `user` (
   `number` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_number_uindex` (`number`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -259,7 +262,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,'account','12d63e1c16c9096f0e6d4a191b53a2ae',256,0,'feed2a6c-255b-4bd6-8');
+INSERT INTO `user` VALUES (2,'account','12d63e1c16c9096f0e6d4a191b53a2ae',255,0,'feed2a6c-255b-4bd6-8'),(4,'root','891504783465bfe2474b3f96dcbd4ac7',1,0,'cc11a851-0403-4501-b'),(5,'root1','891504783465bfe2474b3f96dcbd4ac7',1,0,'778a42ac-f8a4-4326-9'),(6,'root2','891504783465bfe2474b3f96dcbd4ac7',1,0,'3005273a-ad8c-4d84-b'),(7,'root3','891504783465bfe2474b3f96dcbd4ac7',1,0,'ed7af1fe-441c-4352-b'),(8,'root4','891504783465bfe2474b3f96dcbd4ac7',1,0,'54fc6e03-4f04-40f9-a');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -276,15 +279,15 @@ CREATE TABLE `user_info` (
   `phone` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gender` tinyint(4) NOT NULL,
-  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '/index/static/default.png',
+  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '/media/images/default_avatar.jpg',
   `age` int(11) NOT NULL,
-  `nick_name` varchar(99) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nick_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `create_time` datetime NOT NULL,
   `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -293,7 +296,7 @@ CREATE TABLE `user_info` (
 
 LOCK TABLES `user_info` WRITE;
 /*!40000 ALTER TABLE `user_info` DISABLE KEYS */;
-INSERT INTO `user_info` VALUES (1,2,'13000999988',NULL,1,'/index/static/default.png',18,'agag',NULL,'2019-11-05 16:29:36',0);
+INSERT INTO `user_info` VALUES (1,2,'13000999988',NULL,1,'/index/static/default.png',18,'agag',NULL,'2019-11-05 16:29:36',0),(3,4,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:08',0),(4,5,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:19',0),(5,6,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:24',0),(6,7,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:27',0),(7,8,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:30',0);
 /*!40000 ALTER TABLE `user_info` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -306,4 +309,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-05 18:23:14
+-- Dump completed on 2019-11-07 19:25:11

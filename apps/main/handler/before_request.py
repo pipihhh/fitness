@@ -13,7 +13,10 @@ def jwt_handler():
     json web token的处理函数，如果携带了token 则处理 否则略
     :return:
     """
-    token = request.json.get("token")
+    if request.is_json:
+        token = request.json.get("token")
+    else:
+        token = request.form.get("token")
     if token is not None:
         response = Response()
         header, payload, signature = token.split(".")
