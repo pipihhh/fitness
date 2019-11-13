@@ -2,6 +2,7 @@ import os
 from flask import request, current_app, jsonify
 from flask_restful import Resource
 from utils.file_utils import is_safe, generate_filename, get_suffix
+from utils.idempotent_request import idempotent
 from general.response import Response
 from conf.code import FORMAT_ERROR
 from conf.permission import permission_valid, NORMAL
@@ -9,6 +10,7 @@ from conf.permission import permission_valid, NORMAL
 
 class File(Resource):
 
+    @idempotent
     @permission_valid(NORMAL)
     def post(self):
         """
@@ -37,6 +39,9 @@ class File(Resource):
         for index, f in enumerate(files):
             file_name = generate_filename() + "." + suffix_list[index]
             f.save(os.path.join(media_dir, file_name))
-            file_url.append(os.path.join(media_url, file_name))
-        response.data = file_url
+            file_url.append({
+                "url": os.path.join(media_url, file_name),
+                "filename": file_name
+            })
+        response.data = {"msg": file_url}
         return jsonify(response.dict_data)

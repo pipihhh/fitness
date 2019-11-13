@@ -67,3 +67,38 @@ def execute_query_sql(sql, args, key=lambda c: c.fetchall()):
         cursor.close()
         connection.close()
     return ret
+
+
+def fetchone_dict(sql, args, template_class):
+    connection = pool.connection()
+    cursor = connection.cursor(cursor=pymysql.cursors.DictCursor)
+    template = None
+    try:
+        cursor.execute(sql, args)
+        ret = cursor.fetchone()
+        if ret:
+            template = template_class()
+            for k, v in ret.items():
+                setattr(template, k, v)
+    finally:
+        cursor.close()
+        connection.close()
+    return template
+
+
+def fetchall_dict(sql, args, template_class):
+    connection = pool.connection()
+    cursor = connection.cursor(cursor=pymysql.cursors.DictCursor)
+    template_list = []
+    try:
+        cursor.execute(sql, args)
+        ret = cursor.fetchall()
+        for t in ret:
+            template = template_class()
+            for k, v in t.items():
+                setattr(template, k, v)
+            template_list.append(template)
+    finally:
+        cursor.close()
+        connection.close()
+    return template_list

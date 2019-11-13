@@ -17,6 +17,11 @@ class InsertMap(object):
         INSERT INTO ezgym.course_action(course_id, content, picture, sequence) VALUES (%s,%s,%s,%s)
     """
 
+    challenge = """
+        INSERT INTO ezgym.challenge(picture,content,start_time,end_time,create_time,pageviews,number) 
+        VALUES(%s,%s,%s,%s,%s,%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -69,6 +74,23 @@ class SelectMap(object):
         SELECT id,name,type,level,burning,create_time FROM ezgym.course WHERE id = %s AND delete_flag = 0
     """
 
+    action_by_course_id = """
+        SELECT id,course_id,sequence FROM ezgym.course_action WHERE course_id = %s
+    """
+
+    course_list_by_page = """
+        SELECT id,type,name,create_time,level,burning FROM ezgym.course
+        WHERE id > %s AND delete_flag = 0 ORDER BY id LIMIT %s
+    """
+
+    challenge_by_number = """
+        SELECT id,picture,content,start_time,end_time,create_time,pageviews FROM ezgym.challenge WHERE number=%s AND delete_flag=0
+    """
+
+    challenge_by_id = """
+        SELECT id,picture,content,start_time,end_time,create_time,pageviews FROM ezgym.challenge WHERE id=%s AND delete_flag=0
+    """
+
 
 class DeleteMap(object):
     user_by_id = """
@@ -76,6 +98,10 @@ class DeleteMap(object):
     """
     user_info_by_user_id = """
         UPDATE ezgym.user_info SET delete_flag = 1 WHERE user_id = %s
+    """
+
+    course_by_id = """
+        UPDATE ezgym.course SET delete_flag=1 WHERE id=%s AND delete_flag=0
     """
 
 
@@ -99,4 +125,16 @@ class UpdateMap(object):
 
     update_description_by_id = """
         UPDATE ezgym.user_info SET description = %s WHERE user_id = %s
+    """
+
+    update_course_by_id = """
+        UPDATE ezgym.course SET name=%s,type=%s,level=%s,burning=%s WHERE id=%s AND delete_flag=0
+    """
+
+    update_challenge_pageviews = """
+        UPDATE ezgym.challenge SET pageviews=%s WHERE id=%s AND delete_flag=0
+    """
+
+    update_challenge_by_id = """
+        UPDATE ezgym.challenge SET picture=%s,content=%s,start_time=%s,end_time=%s WHERE id=%s AND delete_flag=0
     """

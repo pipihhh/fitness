@@ -1,5 +1,5 @@
 import os
-from flask import request, g, current_app, jsonify
+from flask import current_app, jsonify
 from flask_restful import Resource, reqparse
 from general.vaild import BaseValid
 from general.exception import InvalidArgumentException
@@ -8,6 +8,7 @@ from general.db_pool import execute_sql, execute_query_sql
 from general.sql_map import InsertMap, SelectMap
 from utils.error_handler import init_key_error_handler
 from utils.post_template import post
+from utils.idempotent_request import idempotent
 from conf.permission import permission_valid, ADMIN
 
 
@@ -20,6 +21,7 @@ parse.add_argument("sequence", type=int, required=True)
 
 class Action(Resource):
 
+    @idempotent
     @permission_valid(ADMIN)
     def post(self):
         """
@@ -55,9 +57,15 @@ class ActionValid(BaseValid):
         raise InvalidArgumentException("图片不存在!请先上传")
 
     def id_valid(self, _id):
-        ret = execute_query_sql(SelectMap.course_by_create, [_id, ], lambda c: c.fetchone())
+        ret = execute_query_sql(SelectMap.course_by_id, [_id, ], lambda c: c.fetchone())
         if ret == ():
             raise InvalidArgumentException("课程不存在")
+
+    def sequence_valid(self, sequence):
+        ret = execute_query_sql(SelectMap.action_by_course_id, [getattr(self, "id"), ], lambda c: c.fetchall())
+        for action in ret:
+            if action[2] == sequence:
+                raise InvalidArgumentException("课程的顺序重复!")
 
 
 class ActionTemplate(object):

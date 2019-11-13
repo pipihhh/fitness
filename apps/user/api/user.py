@@ -12,9 +12,10 @@ from general.db_pool import *
 from general.password_handler import md5
 from general.sql_map import InsertMap, SelectMap, DeleteMap, UpdateMap
 from utils.error_handler import init_key_error_handler
+from utils.idempotent_request import idempotent
 from utils.date_utils import get_exp_str, get_now
 from utils.secert import encode_base64, get_jwt
-from conf.permission import permission_valid, ADMIN, NORMAL
+from conf.permission import permission_valid, ADMIN, NORMAL, auth_code_valid
 from flask import request, jsonify, current_app, g
 from flask_restful.reqparse import RequestParser
 
@@ -32,6 +33,8 @@ parser.add_argument("avatar", type=str)
 
 
 class User(Resource):
+
+    @auth_code_valid
     def get(self):
         """
         get方法的接口，获取单个的用户，通过账号密码，如果用户存在，则返回用户信息和token
@@ -83,6 +86,7 @@ class User(Resource):
             config["JWT_ALG"]
         )
 
+    @idempotent
     def post(self):
         """
         post方法，添加用户，会进行参数校验
@@ -114,6 +118,7 @@ class User(Resource):
             connection.close()
         return jsonify(response.dict_data)
 
+    @idempotent
     @permission_valid(NORMAL)
     def put(self):
         """
