@@ -30,8 +30,9 @@ CREATE TABLE `blog` (
   `picture` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `create_time` datetime NOT NULL,
   `upper` int(11) NOT NULL DEFAULT '0',
+  `delete_flag` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,6 +41,7 @@ CREATE TABLE `blog` (
 
 LOCK TABLES `blog` WRITE;
 /*!40000 ALTER TABLE `blog` DISABLE KEYS */;
+INSERT INTO `blog` VALUES (1,2,'aaa','bbb','default.jpg','2019-11-14 19:42:30',0,0),(2,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(3,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(4,2,'aaa','bbb','default.jpg','2019-11-14 19:42:37',0,0),(5,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0),(6,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0);
 /*!40000 ALTER TABLE `blog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,10 +59,12 @@ CREATE TABLE `challenge` (
   `start_time` date NOT NULL,
   `end_time` date NOT NULL,
   `create_time` datetime NOT NULL,
-  `pageviews` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pageviews` int(11) NOT NULL,
   `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `number` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `challenge_number_uindex` (`number`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,6 +73,7 @@ CREATE TABLE `challenge` (
 
 LOCK TABLES `challenge` WRITE;
 /*!40000 ALTER TABLE `challenge` DISABLE KEYS */;
+INSERT INTO `challenge` VALUES (1,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:47:14',0,0,'980b8376-ebda-48eb-a'),(2,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:48:01',0,0,'86aa2740-17b3-4e47-a'),(3,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:49:53',0,0,'136af9f4-603c-4f1e-a'),(4,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 12:42:05',0,0,'b036e698-ebaf-4676-a');
 /*!40000 ALTER TABLE `challenge` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -309,4 +314,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-08 18:25:30
+-- Dump completed on 2019-11-14 20:08:37
