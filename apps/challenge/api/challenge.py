@@ -32,7 +32,7 @@ class Challenge(Resource):
         """
         response = Response()
         try:
-            _id = request.json["id"]
+            _id = request.args["id"]
             challenge = fetchone_dict(SelectMap.challenge_by_id, [_id, ], ChallengeTemplate)
             if challenge:
                 ret = execute_sql(UpdateMap.update_challenge_pageviews, [challenge.pageviews + 1, challenge.id])

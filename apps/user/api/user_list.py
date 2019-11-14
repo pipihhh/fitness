@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app
+from flask import jsonify, current_app, request
 from flask_restful import Resource
 from general.vaild import BaseValid
 from general.db_pool import execute_query_sql
@@ -24,7 +24,7 @@ class UserList(Resource):
         """
         response = Response()
         try:
-            valid = UserListValid(request.json)
+            valid = UserListValid(dict(id=request.args.get("id", 0)))
             data = valid.clean_data
             limit = current_app.config["PAGE_OFFSET"]
             ret = execute_query_sql(SelectMap.user_list_by_offset, [data.get("query_id", 0), limit])
@@ -49,16 +49,9 @@ class UserList(Resource):
 
 
 class UserListValid(BaseValid):
-    def page_valid(self, page):
-        """
-        此方法会校验你传过来的页码是否合理，通过计算所有用户的行数和你的页数进行比对得出的
-        :param page:
-        :return:
-        """
-        if isinstance(page, int):
-            count = execute_query_sql(SelectMap.user_count, [], lambda c: c.fetchone())[0]
-            offset = current_app.config["PAGE_OFFSET"]
-            if count + offset < page * offset:
-                raise InvalidArgumentException("错误的页码")
-            return
-        raise InvalidArgumentException("page must be Integer")
+    def id_valid(self, _id):
+        if isinstance(_id, str):
+            raise InvalidArgumentException("错误的id数据类型")
+        ret = execute_query_sql(SelectMap.user_valid_by_id, (_id, ), lambda c: c.fetchone())
+        if not ret and _id != 0:
+            raise InvalidArgumentException("用户不存在")

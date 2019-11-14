@@ -1,16 +1,16 @@
 import datetime
-from flask import request, g, current_app, jsonify
+from flask import request, g, jsonify
 from flask_restful import Resource, reqparse
 from general.vaild import BaseValid
 from general.response import Response
-from general.db_pool import execute_sql, execute_query_sql
+from general.db_pool import execute_sql, execute_query_sql, fetchone_dict
 from general.sql_map import InsertMap, SelectMap, UpdateMap, DeleteMap
 from general.exception import UserDoesNotExistException
 from utils.error_handler import init_key_error_handler
 from utils.idempotent_request import idempotent
 from utils.post_template import post
 from conf.code import FORMAT_ERROR
-from conf.permission import permission_valid, ADMIN
+from conf.permission import permission_valid, ADMIN, NORMAL
 
 
 parse = reqparse.RequestParser()
@@ -22,6 +22,33 @@ parse.add_argument("id", type=int)
 
 
 class Course(Resource):
+
+    @permission_valid(NORMAL)
+    def get(self):
+        response = Response()
+        try:
+            _id = g.json["id"]
+            course = fetchone_dict(SelectMap.course_by_id, [_id, ], CourseTemplate)
+            if course is None:
+                raise UserDoesNotExistException("课程不存在")
+            response.data = {
+                "id": course.id, "name": course.name,
+                "level": course.level, "type": course.type,
+                "burning": course.burning
+            }
+        except KeyError:
+            response.code = FORMAT_ERROR
+            response.errno = 1
+            response.data = {"msg": "缺少id"}
+        except UserDoesNotExistException:
+            response.code = FORMAT_ERROR
+            response.errno = 1
+            response.data = {"msg": "课程不存在"}
+        except Exception as e:
+            response.code = 500
+            response.errno = 1
+            response.data = {"msg": str(e)}
+        return jsonify(response.dict_data)
 
     @idempotent
     @permission_valid(ADMIN)

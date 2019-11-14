@@ -48,19 +48,21 @@ def auth_code_valid(func):
         key = current_app.config["AUTH_CODE_SESSION_KEY"]
         try:
             auth_code = session[key].lower()
-            code = request.json[key].lower()
+            code = request.args.get(key).lower()
             if code != auth_code:
                 raise InvalidArgumentException()
             ret = func(*args, **kwargs)
             session.clear()
             return ret
-        except KeyError:
+        except (KeyError, AttributeError):
             response.code = FORMAT_ERROR
             response.errno = 1
-            response.msg = {"msg": "无效的验证码"}
+            response.data = {"msg": "无效的验证码"}
+            import traceback
+            traceback.print_exc()
         except InvalidArgumentException:
             response.code = FORMAT_ERROR
             response.errno = 1
-            response.msg = {"msg": "验证码校验错误"}
+            response.data = {"msg": "验证码校验错误"}
         return jsonify(response.dict_data)
     return inner

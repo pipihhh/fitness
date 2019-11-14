@@ -7,7 +7,7 @@ class BaseConfig(object):
     还有是否是调试环境
     """
     SECRET_KEY = "jsjkfhaskjhdjkashkfj"  # 加密session时候使用的秘钥
-    PERMANENT_SESSION_LIFETIME = 30   # 设置验证码的超时时间 超过此时间后的验证码无效
+    PERMANENT_SESSION_LIFETIME = 100   # 设置验证码的超时时间 超过此时间后的验证码无效
     DB_NAME = "ezgym"
     DB_USER = "root"
     DB_PASSWORD = "root"

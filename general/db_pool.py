@@ -39,13 +39,14 @@ def update_sql_execute(cursor, sql, args):
     return ret
 
 
-def execute_sql(sql, args):
+def execute_sql(sql, args, is_insert=False):
     connection = pool.connection()
     cursor = connection.cursor()
-    ret = None
     try:
         ret = cursor.execute(sql, args)
         connection.commit()
+        if is_insert:
+            ret = cursor.lastrowid
     except Exception:
         connection.rollback()
         connection.commit()

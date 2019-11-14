@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, current_app
 from flask.json import JSONEncoder
-from apps import user, course, files, challenge
+from apps import user, course, files, challenge, blog
 from flask_restful import Api
 from conf.default import DefaultConfig
 from apps.main.handler import before_request, after_request
@@ -21,6 +21,8 @@ def create_app():
     api.add_resource(files.file.File, "/api/upload")
     api.add_resource(user.auth_code.AuthCode, "/api/auth_code")
     api.add_resource(challenge.challenge.Challenge, "/api/challenge")
+    api.add_resource(blog.blog.Blog, "/api/blog")
+    api.add_resource(blog.blog_list.BlogList, "/api/blog_list")
     return app
 
 

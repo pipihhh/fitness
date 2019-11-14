@@ -22,6 +22,10 @@ class InsertMap(object):
         VALUES(%s,%s,%s,%s,%s,%s,%s)
     """
 
+    blog = """
+        INSERT INTO ezgym.blog(user_id, content, title, picture, create_time) VALUES (%s,%s,%s,%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -91,6 +95,16 @@ class SelectMap(object):
         SELECT id,picture,content,start_time,end_time,create_time,pageviews FROM ezgym.challenge WHERE id=%s AND delete_flag=0
     """
 
+    blog_list_by_id = """
+        SELECT id, user_id, content, title, picture, create_time, "upper" FROM ezgym.blog WHERE id>%s AND delete_flag=0 ORDER BY id LIMIT %s
+    """
+
+    action_list_by_course_id = """
+        SELECT ca.id as id,ca.course_id as course_id,ca.content as content,ca.picture as picture,ca.sequence as sequence 
+        FROM ezgym.course_action ca INNER JOIN ezgym.course c ON c.id=ca.course_id
+        WHERE c.id=%s AND c.delete_flag=0 ORDER BY sequence
+    """
+
 
 class DeleteMap(object):
     user_by_id = """
@@ -102,6 +116,10 @@ class DeleteMap(object):
 
     course_by_id = """
         UPDATE ezgym.course SET delete_flag=1 WHERE id=%s AND delete_flag=0
+    """
+
+    blog_by_id = """
+        UPDATE ezgym.blog SET delete_flag=1 WHERE id=%s
     """
 
 
@@ -136,5 +154,5 @@ class UpdateMap(object):
     """
 
     update_challenge_by_id = """
-        UPDATE ezgym.challenge SET picture=%s,content=%s,start_time=%s,end_time=%s WHERE id=%s AND delete_flag=0
+        UPDATE ezgym.challenge SET picture=%s,content=%s,start_time=%s,end_time=%s WHERE id=%s AND delete_flag=0    
     """

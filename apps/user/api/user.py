@@ -40,8 +40,8 @@ class User(Resource):
         get方法的接口，获取单个的用户，通过账号密码，如果用户存在，则返回用户信息和token
         :return:
         """
-        account = request.json["account"]
-        password = md5(request.json["password"])
+        account = request.args["account"]
+        password = md5(request.args["password"])
         response = Response()
         connection = pool.connection()
         cursor = connection.cursor()
