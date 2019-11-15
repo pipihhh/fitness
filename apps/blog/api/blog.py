@@ -1,13 +1,15 @@
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask_restful import Resource, reqparse
 from bs4 import BeautifulSoup, Comment
 from general.vaild import BaseValid
 from utils.date_utils import is_file_exist
 from general.exception import InvalidArgumentException
 from general.sql_map import SelectMap, InsertMap, DeleteMap
-from general.db_pool import execute_query_sql, execute_sql
+from general.db_pool import execute_query_sql, execute_sql, fetchone_dict
 from general.response import Response
 from utils.error_handler import init_key_error_handler
+from utils.idempotent_request import idempotent
+from utils.general_object import GeneralObject
 from utils.post_template import post
 from conf.permission import permission_valid, NORMAL, ADMIN
 
@@ -21,6 +23,26 @@ parser.add_argument("picture", type=str, required=True)
 
 class Blog(Resource):
 
+    def get(self):
+        response = Response()
+        try:
+            _id = request.args["id"]
+            blog = fetchone_dict(SelectMap.blog_by_id, (_id, ), BlogTemplate)
+            if blog is None:
+                raise InvalidArgumentException("数据不存在")
+            user = fetchone_dict(SelectMap.user_info_by_user_id, (blog.user_id, ), GeneralObject)
+            response.data = blog.__dict__
+            response.data.update({
+                "nick_name": user.nick_name, "gender": user.gender, "email": user.email,
+                "avatar": user.avatar, "permission": user.permission
+            })
+        except Exception as e:
+            init_key_error_handler(response, e, "信息:")
+            import traceback
+            traceback.print_exc()
+        return jsonify(response.dict_data)
+
+    @idempotent
     @permission_valid(NORMAL)
     def post(self):
         """
@@ -47,6 +69,7 @@ class Blog(Resource):
             init_key_error_handler(response, e, "信息:")
         return jsonify(response.dict_data)
 
+    @idempotent
     @permission_valid(ADMIN)
     def delete(self):
         response = Response()
@@ -64,6 +87,7 @@ class Blog(Resource):
 class BlogValid(BaseValid):
     def picture_valid(self, picture):
         if is_file_exist(picture):
+            setattr(self, picture, current_app.config["MEDIA_URL"] + picture)
             return
         raise InvalidArgumentException("图片不存在 请先上传!")
 

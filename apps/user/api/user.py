@@ -46,14 +46,17 @@ class User(Resource):
         connection = pool.connection()
         cursor = connection.cursor()
         try:
+            if account == "" or password == "":
+                raise InvalidArgumentException("账号或密码不可为空")
             ret = get_one(cursor, SelectMap.user_info_with_login, [account, password])
             if ret is None:
-                raise UserDoesNotExistException("用户不存在")
+                raise UserDoesNotExistException("错误的用户名或密码")
             response.data = {
                 "id": ret[0], "account": ret[1],
                 "permission": ret[2], "phone": ret[3],
                 "email": ret[4], "gender": ret[5],
                 "avatar": ret[6], "description": ret[7],
+                "nick_name": ret[8], "create_time": ret[9],
                 "token": self._make_jwt(ret)
             }
         except UserDoesNotExistException as e:
@@ -90,6 +93,7 @@ class User(Resource):
     def post(self):
         """
         post方法，添加用户，会进行参数校验
+        账号的长度限制在4-18位之间 并且
         :return:
         """
         response = Response()
@@ -122,7 +126,9 @@ class User(Resource):
     @permission_valid(NORMAL)
     def put(self):
         """
-        修改，修改用户信息使用此方法
+        修改，修改用户信息使用此方法  tag代表了你想要的动作 有3个选项
+        all 全部的  avatar 头像 description 描述信息
+        当你传all 的时候 需要同时传所有的信息 包括未被修改的部分
         :return:
         """
         response = Response()
@@ -321,6 +327,7 @@ class UserValid(BaseValid):
     def __init__(self, *args, **kwargs):
         self._regx_phone = re.compile(r"1[3|5|7|8|9]\d{9}")
         self._regx_email = re.compile(r"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*")
+        self._regx_account = re.compile(r"^[a-zA-Z0-9_-]{4,18}$")
         BaseValid.__init__(self, *args, **kwargs)
 
     def phone_valid(self, phone):
@@ -342,6 +349,8 @@ class UserValid(BaseValid):
             raise InvalidArgumentException("错误的性别")
 
     def nick_name_valid(self, nick_name):
+        if nick_name == "":
+            raise InvalidArgumentException("昵称不能为空")
         if len(nick_name) >= 30:
             raise InvalidArgumentException("昵称过长")
 
@@ -361,10 +370,12 @@ class UserValid(BaseValid):
             raise InvalidArgumentException("权限参数不正确")
 
     def account_valid(self, account):
-        if len(account) >= 18:
-            raise InvalidArgumentException("账号长度过长")
+        if re.match(self._regx_account, account) is None:
+            raise InvalidArgumentException("非法的账号格式")
 
     def password_valid(self, password):
+        if password == "":
+            raise InvalidArgumentException("密码不能为空")
         if request.method == "PUT":
             user_id = request.json.get("id") or getattr(request, "user")["id"]
             connection = pool.connection()

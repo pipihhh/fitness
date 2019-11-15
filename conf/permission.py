@@ -57,9 +57,7 @@ def auth_code_valid(func):
         except (KeyError, AttributeError):
             response.code = FORMAT_ERROR
             response.errno = 1
-            response.data = {"msg": "无效的验证码"}
-            import traceback
-            traceback.print_exc()
+            response.data = {"msg": "验证码已失效 重新输入"}
         except InvalidArgumentException:
             response.code = FORMAT_ERROR
             response.errno = 1

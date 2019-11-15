@@ -1,4 +1,4 @@
-from flask import request, jsonify, g
+from flask import request, jsonify, g, current_app
 from utils.secert import *
 from general.exception import TokenTimeOutException, IllegalTokenException
 from general.response import Response
@@ -48,7 +48,7 @@ def jwt_handler():
 def payload_handler(payload):
     now = datetime.datetime.now()
     exp = payload.get("exp", "1999-12-30 00:00:00")
-    exp = datetime.datetime.strptime(exp, "%Y-%m-%d %H:%M:%S")
+    exp = datetime.datetime.strptime(exp, current_app.config["DATE_FORMAT"])
     if now > exp:
         raise TokenTimeOutException("Token已失效")
     _id = payload["id"]

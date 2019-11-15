@@ -35,7 +35,7 @@ class Challenge(Resource):
             _id = request.args["id"]
             challenge = fetchone_dict(SelectMap.challenge_by_id, [_id, ], ChallengeTemplate)
             if challenge:
-                ret = execute_sql(UpdateMap.update_challenge_pageviews, [challenge.pageviews + 1, challenge.id])
+                ret = execute_sql(UpdateMap.update_challenge_pageviews, [challenge.id, ])
                 if ret == 0:
                     raise InvalidArgumentException("数据不存在")
                 response.data = {
@@ -44,6 +44,7 @@ class Challenge(Resource):
                     "end_time": challenge.end_time, "create_time": challenge.create_time,
                     "pageviews": challenge.pageviews + 1
                 }
+                return jsonify(response.dict_data)
             raise InvalidArgumentException("数据不存在")
         except Exception as e:
             init_key_error_handler(response, e, "信息:")
@@ -82,6 +83,8 @@ class Challenge(Resource):
                 init_key_error_handler(response, e, "信息:")
         return jsonify(response.dict_data)
 
+    @idempotent
+    @permission_valid(ADMIN)
     def put(self):
         """
         修改挑战的接口 和post接口相比 需要多传一个id的key 如果id不存在 则无法执行
@@ -132,6 +135,7 @@ class ChallengeValid(BaseValid):
     def picture_valid(self, picture):
         if not is_file_exist(picture):
             raise InvalidArgumentException("图片文件不存在，请先上传!")
+        setattr(self, picture, current_app.config["MEDIA_URL"] + picture)
 
     def id_valid(self, _id):
         challenge = fetchone_dict(SelectMap.challenge_by_id, [_id], ChallengeTemplate)

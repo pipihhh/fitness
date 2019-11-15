@@ -1,1 +1,1 @@
-from apps.blog.api import blog, blog_list
+from apps.blog.api import blog, blog_list, upper

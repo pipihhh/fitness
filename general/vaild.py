@@ -11,6 +11,9 @@ class BaseValid(object):
         if kwargs is not None:
             add_arg(self, kwargs)
 
+    def valid(self):
+        pass
+
     def _filter(self):
         for arg_name in self.__dict__:
             func_name = arg_name + "_valid"
