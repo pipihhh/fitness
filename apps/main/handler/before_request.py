@@ -15,8 +15,10 @@ def jwt_handler():
     """
     if request.is_json:
         token = request.json.get("token")
-    else:
+    elif request.method != "GET":
         token = request.form.get("token")
+    else:
+        token = request.args.get("token")
     if token is not None:
         response = Response()
         header, payload, signature = token.split(".")
