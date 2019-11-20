@@ -32,7 +32,7 @@ def jwt_handler():
             response.code = PERMISSION_ERROR
             response.errno = 1
             response.data = {"msg": str(e)}
-        except KeyError or IndexError or IllegalTokenException as e:
+        except (KeyError, IndexError, IllegalTokenException) as e:
             response.code = FORMAT_ERROR
             response.errno = 1
             response.data = {"msg": "错误的token:" + str(e)}

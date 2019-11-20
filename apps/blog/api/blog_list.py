@@ -19,7 +19,8 @@ class BlogList(Resource):
             if blog_list:
                 response.data = {
                     "blog_list": [blog.__dict__ for blog in blog_list],
-                    "query_id": blog_list[-1].id, "last_query_id": _id, "page_offset": offset
+                    "query_id": blog_list[-1].id, "last_query_id": _id, "page_offset": offset,
+                    "count": len(blog_list)
                 }
             else:
                 raise UserDoesNotExistException("数据不存在")

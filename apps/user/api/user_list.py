@@ -39,7 +39,6 @@ class UserList(Resource):
                 } for user in ret],
                 "count": len(ret),
                 "query_id": ret[-1][0],
-                "page": data["page"],
                 "last_query_id": data.get("query_id", 0),
                 "page_offset": limit
             }

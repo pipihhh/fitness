@@ -1,1 +1,1 @@
-from apps.challenge.api import challenge
+from apps.challenge.api import challenge, challenge_list

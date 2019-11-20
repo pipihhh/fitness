@@ -24,6 +24,8 @@ class ActionList(Resource):
                 raise UserDoesNotExistException("动作不存在")
             response.data = {
                 "action_list": [action.__dict__ for action in action_list],
+                "count": len(action_list),
+                "course_id": course_id
             }
             response.data.update(course.__dict__)
         except Exception as e:

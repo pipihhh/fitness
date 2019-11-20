@@ -13,10 +13,10 @@ from conf.permission import permission_valid, ADMIN
 
 
 parse = reqparse.RequestParser()
-parse.add_argument("id", type=int, required=True)
-parse.add_argument("content", type=str, required=True)
-parse.add_argument("picture", type=str)
-parse.add_argument("sequence", type=int, required=True)
+parse.add_argument("id", type=int, required=True)   # 课程的id
+parse.add_argument("content", type=str, required=True)  # 动作的内容
+parse.add_argument("picture", type=str)   # 图片的文件名
+parse.add_argument("sequence", type=int, required=True)   # 动作的排序权重 从小到大排
 
 
 class Action(Resource):

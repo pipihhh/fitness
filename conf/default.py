@@ -33,6 +33,7 @@ class BaseConfig(object):
     AUTH_CODE_FONTSIZE = 16  # 配置验证码文字的字体大小
     AUTH_CODE_LINES = 3  # 配置干扰线的条数
     AUTH_CODE_SESSION_KEY = "auth_code"  # 验证码通过session在获取图片的时候发给浏览器 并且在收到验证码的时候比对 此时的session key
+    TITLE_LENGTH = 10   # 取挑战的标题的时候 取内容的长度值xxx作为标题
 
 
 class DefaultConfig(BaseConfig):

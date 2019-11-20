@@ -25,6 +25,9 @@ def create_app():
     api.add_resource(blog.blog_list.BlogList, "/api/blog_list")
     api.add_resource(blog.upper.Upper, "/api/upper")
     api.add_resource(comment.comment.Comment, "/api/comment")
+    api.add_resource(course.course_list.CourseList, "/api/course_list")
+    api.add_resource(course.action_list.ActionList, "/api/action_list")
+    api.add_resource(challenge.challenge_list.ChallengeList, "/api/challenge_list")
     return app
 
 

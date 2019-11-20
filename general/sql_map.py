@@ -125,6 +125,12 @@ class SelectMap(object):
         SELECT id, blog_id, user_id, create_time FROM ezgym.upper_log WHERE blog_id=%s AND user_id=%s
     """
 
+    challenge_list_by_id = """
+        SELECT id, picture, content, start_time, end_time, create_time, pageviews 
+        FROM ezgym.challenge WHERE id>%s AND delete_flag=0 ORDER BY id 
+        LIMIT %s
+    """
+
 
 class DeleteMap(object):
     user_by_id = """

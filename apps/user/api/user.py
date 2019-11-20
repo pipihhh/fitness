@@ -20,16 +20,16 @@ from flask import request, jsonify, current_app, g
 from flask_restful.reqparse import RequestParser
 
 parser = RequestParser()
-parser.add_argument("account", type=str, required=True)
-parser.add_argument("password", type=str, required=True)
-parser.add_argument("permission", type=int, required=True)
-parser.add_argument("phone", type=str, required=True)
-parser.add_argument("email", type=str)
+parser.add_argument("account", type=str, required=True)  # 账号信息
+parser.add_argument("password", type=str, required=True)  # 密码信息
+parser.add_argument("permission", type=int, required=True)  # 权限信息 目前只有1和255 详见conf/permission
+parser.add_argument("phone", type=str, required=True)  # 电话号 必须是11位
+parser.add_argument("email", type=str)   # 电子邮件 可为空 必须符合电子邮件的格式
 parser.add_argument("gender", type=int, required=True)  # 0男1女
-parser.add_argument("age", type=int, required=True)
-parser.add_argument("nick_name", type=str, required=True)
-parser.add_argument("description", type=str)
-parser.add_argument("avatar", type=str)
+parser.add_argument("age", type=int, required=True)   # 年龄
+parser.add_argument("nick_name", type=str, required=True)  # 昵称
+parser.add_argument("description", type=str)   # 描述 可为空
+parser.add_argument("avatar", type=str)   # 头像文件名
 
 
 class User(Resource):
