@@ -87,7 +87,7 @@ class SelectMap(object):
     """
 
     action_by_course_id = """
-        SELECT id,course_id,sequence FROM ezgym.course_action WHERE course_id = %s
+        SELECT id,course_id,sequence,content,picture FROM ezgym.course_action WHERE course_id = %s
     """
 
     course_list_by_page = """

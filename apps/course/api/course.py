@@ -104,7 +104,7 @@ class Course(Resource):
             init_key_error_handler(response, e, "缺少入参:")
         except UserDoesNotExistException as e:
             init_key_error_handler(response, e)
-        return jsonify(response)
+        return jsonify(response.dict_data)
 
     @idempotent
     @permission_valid(ADMIN)

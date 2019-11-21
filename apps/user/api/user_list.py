@@ -12,7 +12,7 @@ from general.response import Response
 
 class UserList(Resource):
 
-    @throttle(2, 10)
+    @throttle(2, 1)
     @permission_valid(ADMIN)
     def get(self):
         """
