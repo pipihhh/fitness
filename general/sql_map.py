@@ -160,6 +160,14 @@ class DeleteMap(object):
         UPDATE ezgym.reply SET delete_flag=1 WHERE comment_id=%s AND delete_flag=0
     """
 
+    action_by_id = """
+        DELETE FROM ezgym.course_action WHERE id=%s
+    """
+
+    challenge_by_id = """
+        UPDATE ezgym.challenge SET delete_flag=1 WHERE id=%s AND delete_flag=0
+    """
+
 
 class UpdateMap(object):
     update_avatar_by_user_id = """

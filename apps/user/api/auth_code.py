@@ -13,7 +13,10 @@ class AuthCode(Resource):
         buffer, code = _generate_code_picture()
         key = current_app.config["AUTH_CODE_SESSION_KEY"]
         session[key] = code
-        return Response(buffer, mimetype="image/png")
+        response = Response(buffer, mimetype="image/png")
+        response.headers.add("Pragma", "no-cache")
+        response.headers.add("Cache-Control", "no-cache")
+        return response
 
 
 def _generate_code_text():

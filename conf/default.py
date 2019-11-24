@@ -20,7 +20,7 @@ class BaseConfig(object):
     JWT_ALG = "sha256"  # token的加密算法
     EXP_MIN = 30    # token的失效时间 分钟为单位
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S"  # 时间的格式,如2019-11-11 11:11:11
-    PAGE_OFFSET = 3   # 分页相关，每页显示的用户数
+    PAGE_OFFSET = 9   # 分页相关，每页显示的用户数
     THROTTLE_SECONDS = 5  # 5秒内只能访问xx次
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}   # 允许的文件上传格式
     MAX_CONTENT_LENGTH = 6 * 1024 * 1024  # 允许的文件大小 此为6MB

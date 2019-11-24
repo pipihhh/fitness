@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup, Comment
 from flask import request, current_app, jsonify
 from flask_restful import Resource, reqparse
 from general.response import Response
-from general.sql_map import InsertMap, SelectMap, UpdateMap
+from general.sql_map import InsertMap, SelectMap, UpdateMap, DeleteMap
 from general.db_pool import execute_sql, fetchone_dict
-from general.exception import InvalidArgumentException
+from general.exception import InvalidArgumentException, UserDoesNotExistException
 from utils.generate_number import generate_number
 from utils.date_utils import is_file_exist
 from utils.idempotent_request import idempotent
@@ -110,6 +110,18 @@ class Challenge(Resource):
                 init_key_error_handler(response, e, "信息:")
         return jsonify(response.dict_data)
 
+    @permission_valid(ADMIN)
+    def delete(self):
+        response = Response()
+        try:
+            _id = request.json["id"]
+            ret = execute_sql(DeleteMap.challenge_by_id, (_id, ))
+            if ret == 0:
+                raise UserDoesNotExistException("挑战不存在")
+        except Exception as e:
+            init_key_error_handler(response, e, "信息")
+        return jsonify(response.dict_data)
+
 
 class ChallengeValid(BaseValid):
     def start_time_valid(self, start_time):
@@ -135,7 +147,8 @@ class ChallengeValid(BaseValid):
     def picture_valid(self, picture):
         if not is_file_exist(picture):
             raise InvalidArgumentException("图片文件不存在，请先上传!")
-        setattr(self, picture, current_app.config["MEDIA_URL"] + picture)
+        import os
+        setattr(self, picture, os.path.join(current_app.config["MEDIA_URL"], picture))
 
     def id_valid(self, _id):
         challenge = fetchone_dict(SelectMap.challenge_by_id, [_id], ChallengeTemplate)

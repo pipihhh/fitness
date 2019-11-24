@@ -1,11 +1,12 @@
 import os
-from flask import current_app, jsonify
+from flask import current_app, jsonify, request
 from flask_restful import Resource, reqparse
 from general.vaild import BaseValid
 from general.exception import InvalidArgumentException
 from general.response import Response
 from general.db_pool import execute_sql, execute_query_sql
-from general.sql_map import InsertMap, SelectMap
+from general.sql_map import InsertMap, SelectMap, DeleteMap
+from general.exception import UserDoesNotExistException
 from utils.error_handler import init_key_error_handler
 from utils.post_template import post
 from utils.idempotent_request import idempotent
@@ -46,13 +47,25 @@ class Action(Resource):
             init_key_error_handler(response, e)
         return jsonify(response.dict_data)
 
+    @permission_valid(ADMIN)
+    def delete(self):
+        response = Response()
+        try:
+            _id = request.json["id"]
+            ret = execute_sql(DeleteMap.action_by_id, (_id, ))
+            if ret == 0:
+                raise UserDoesNotExistException("动作不存在")
+        except Exception as e:
+            init_key_error_handler(response, e, "信息:")
+        return jsonify(response.dict_data)
+
 
 class ActionValid(BaseValid):
     def picture_valid(self, picture):
         media_dir = current_app.config["MEDIA_DIR"]
         file_dir = os.path.join(media_dir, picture)
         if os.path.isfile(file_dir):
-            setattr(self, picture, current_app.config["MEDIA_URL"] + picture)
+            setattr(self, picture, os.path.join(current_app.config["MEDIA_URL"], picture))
             return
         raise InvalidArgumentException("图片不存在!请先上传")
 

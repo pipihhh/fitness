@@ -173,7 +173,6 @@ class User(Resource):
         cursor = connection.cursor()
         valid = UserValid(request.json)
         description = valid.clean_data["description"]
-        print(description)
         try:
             ret = update_sql_execute(cursor, UpdateMap.update_description_by_id, [description, user_id])
             if ret != 1:
@@ -358,7 +357,7 @@ class UserValid(BaseValid):
         image_path = os.path.join(current_app.config["MEDIA_DIR"], avatar)
         if not os.path.isfile(image_path):
             raise InvalidArgumentException("avatar的格式错误!")
-        self.__dict__["avatar"] = current_app.config["MEDIA_URL"] + avatar
+        self.__dict__["avatar"] = os.path.join(current_app.config["MEDIA_URL"], avatar)
 
     def permission_valid(self, permission):
         import conf.permission
