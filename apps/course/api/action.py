@@ -65,7 +65,7 @@ class ActionValid(BaseValid):
         media_dir = current_app.config["MEDIA_DIR"]
         file_dir = os.path.join(media_dir, picture)
         if os.path.isfile(file_dir):
-            setattr(self, picture, os.path.join(current_app.config["MEDIA_URL"], picture))
+            setattr(self, "picture", os.path.join(current_app.config["MEDIA_URL"], picture))
             return
         raise InvalidArgumentException("图片不存在!请先上传")
 

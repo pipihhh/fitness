@@ -148,7 +148,7 @@ class ChallengeValid(BaseValid):
         if not is_file_exist(picture):
             raise InvalidArgumentException("图片文件不存在，请先上传!")
         import os
-        setattr(self, picture, os.path.join(current_app.config["MEDIA_URL"], picture))
+        setattr(self, "picture", os.path.join(current_app.config["MEDIA_URL"], picture))
 
     def id_valid(self, _id):
         challenge = fetchone_dict(SelectMap.challenge_by_id, [_id], ChallengeTemplate)

@@ -87,7 +87,7 @@ class Blog(Resource):
 class BlogValid(BaseValid):
     def picture_valid(self, picture):
         if is_file_exist(picture):
-            setattr(self, picture, current_app.config["MEDIA_URL"] + picture)
+            setattr(self, "picture", current_app.config["MEDIA_URL"] + picture)
             return
         raise InvalidArgumentException("图片不存在 请先上传!")
 
