@@ -1,5 +1,5 @@
 import datetime
-from flask import request, g, jsonify
+from flask import request, jsonify
 from flask_restful import Resource, reqparse
 from general.vaild import BaseValid
 from general.response import Response
@@ -27,7 +27,7 @@ class Course(Resource):
     def get(self):
         response = Response()
         try:
-            _id = g.json["id"]
+            _id = request.args["id"]
             course = fetchone_dict(SelectMap.course_by_id, [_id, ], CourseTemplate)
             if course is None:
                 raise UserDoesNotExistException("课程不存在")

@@ -16,10 +16,12 @@ from utils.post_template import post
 
 
 parse = reqparse.RequestParser()
+# parse.parse_args()
 parse.add_argument("picture", type=str, required=True)
 parse.add_argument("content", type=str, required=True)
 parse.add_argument("start_time", type=str, required=True)
 parse.add_argument("end_time", type=str, required=True)
+parse.add_argument("id", type=id)
 
 
 class Challenge(Resource):
@@ -129,6 +131,7 @@ class ChallengeValid(BaseValid):
         start_time = datetime.date.fromisoformat(start_time)
         if start_time < now:
             raise InvalidArgumentException("开始时间必须大于或等于当前时间(1分钟的误差)")
+        setattr(self, "start_time", start_time)
 
     def end_time_valid(self, end_time):
         now = datetime.date.today()
@@ -138,6 +141,7 @@ class ChallengeValid(BaseValid):
             start_time = datetime.date.fromisoformat(start_time)
         if end_time < start_time or end_time < now:
             raise InvalidArgumentException("错误的end_time")
+        setattr(self, "end_time", end_time)
 
     def content_valid(self, content):
         bs = BeautifulSoup(content, "html.parser")
@@ -151,9 +155,15 @@ class ChallengeValid(BaseValid):
         setattr(self, "picture", os.path.join(current_app.config["MEDIA_URL"], picture))
 
     def id_valid(self, _id):
-        challenge = fetchone_dict(SelectMap.challenge_by_id, [_id], ChallengeTemplate)
+        challenge = fetchone_dict(SelectMap.challenge_by_id, [_id, ], ChallengeTemplate)
         if challenge:
             return
+        else:
+            _id = request.json["id"]
+            challenge = fetchone_dict(SelectMap.challenge_by_id, [_id, ], ChallengeTemplate)
+            if challenge:
+                setattr(self, "id", _id)
+                return
         raise InvalidArgumentException("数据不存在")
 
 

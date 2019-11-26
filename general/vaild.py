@@ -1,5 +1,4 @@
 from copy import deepcopy
-from traceback import print_exc
 
 
 class BaseValid(object):
@@ -22,7 +21,6 @@ class BaseValid(object):
                     getattr(self, func_name)(self.__dict__[arg_name])
                 except Exception as e:
                     self._err_map[arg_name] = str(e)
-                    print_exc()
         self._valid_flag = True
 
     def valid_data(self):
