@@ -78,6 +78,12 @@ class SelectMap(object):
         SELECT COUNT(1) FROM ezgym.user WHERE delete_flag=0;
     """
 
+    user_generic = """
+        SELECT create_time 
+        FROM ezgym.user u INNER JOIN ezgym.user_info ui ON u.id=ui.user_id
+        WHERE u.delete_flag=0 AND ui.delete_flag=0 AND create_time>=%s AND create_time<%s
+    """
+
     course_by_create = """
         SELECT id, type, name, create_time, level, burning FROM ezgym.course WHERE name = %s
     """
@@ -109,6 +115,12 @@ class SelectMap(object):
 
     blog_by_id = """
         SELECT id, user_id, content, title, picture, create_time, `upper` FROM ezgym.blog WHERE id=%s AND delete_flag=0
+    """
+
+    blog_search = """
+        SELECT id,user_id,title,picture,create_time,`upper` 
+        FROM ezgym.blog WHERE delete_flag=0 AND id>{} AND title LIKE '%%{}%%'
+        ORDER BY id LIMIT {}
     """
 
     action_list_by_course_id = """

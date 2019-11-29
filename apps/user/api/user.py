@@ -56,7 +56,7 @@ class User(Resource):
                 "permission": ret[2], "phone": ret[3],
                 "email": ret[4], "gender": ret[5],
                 "avatar": ret[6], "description": ret[7],
-                "nick_name": ret[8], "create_time": ret[9],
+                "nick_name": ret[10], "create_time": ret[9],
                 "token": self._make_jwt(ret)
             }
         except UserDoesNotExistException as e:

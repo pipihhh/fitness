@@ -14,6 +14,10 @@ class BaseValid(object):
         pass
 
     def _filter(self):
+        try:
+            self.valid()
+        except Exception as e:
+            self._err_map["err_msg"] = str(e)
         for arg_name in self.__dict__:
             func_name = arg_name + "_valid"
             if hasattr(self, func_name):
@@ -37,6 +41,7 @@ class BaseValid(object):
             self._cache.pop("_err_map")
             self._cache.pop("_valid_flag")
             self._cache.pop("_copy_flag")
+            self._cache.pop("_cache")
             self._copy_flag = True
         return self._cache
 
