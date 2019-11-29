@@ -47,8 +47,8 @@ class TimeWindow(Resource):
         user_list.sort(key=lambda u: u.create_time)
         ret = []
         index = 0
-        _range = end_window.day - start_window.day
-        for day in range(end_window.day - start_window.day):
+        _range = (end_window - start_window).days
+        for day in range(_range):
             s = start_window + datetime.timedelta(day)
             e = s + datetime.timedelta(hours=23, minutes=59, seconds=59)
             count = 0
