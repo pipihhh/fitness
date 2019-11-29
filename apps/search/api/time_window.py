@@ -45,7 +45,6 @@ class TimeWindow(Resource):
         end_window = data_dict["end_time"]
         user_list = fetchall_dict(SelectMap.user_generic, (start_window, end_window), GeneralObject)
         user_list.sort(key=lambda u: u.create_time)
-        print(user_list)
         ret = []
         index = 0
         _range = end_window.day - start_window.day
@@ -63,7 +62,10 @@ class TimeWindow(Resource):
                 "node": datetime.date(s.year, s.month, s.day),
                 "count": count
             })
-        response.data = ret
+        response.data = {
+            "time_window": ret,
+            "count": len(ret),
+        }
 
 
 class TimeValid(BaseValid):
