@@ -17,7 +17,7 @@ class BaseValid(object):
         try:
             self.valid()
         except Exception as e:
-            self._err_map["err_msg"] = str(e)
+            self._err_map["all"] = str(e)
         for arg_name in self.__dict__:
             func_name = arg_name + "_valid"
             if hasattr(self, func_name):

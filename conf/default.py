@@ -8,6 +8,7 @@ class BaseConfig(object):
     """
     SECRET_KEY = "jsjkfhaskjhdjkashkfj"  # 加密session时候使用的秘钥
     PERMANENT_SESSION_LIFETIME = 100   # 设置验证码的超时时间 超过此时间后的验证码无效
+    USER_HOST = "http://127.0.0.1:8080"  # 前端的域名 localhost和127不同
     DB_NAME = "ezgym"
     DB_USER = "root"
     DB_PASSWORD = "root"
@@ -34,6 +35,13 @@ class BaseConfig(object):
     AUTH_CODE_LINES = 3  # 配置干扰线的条数
     AUTH_CODE_SESSION_KEY = "auth_code"  # 验证码通过session在获取图片的时候发给浏览器 并且在收到验证码的时候比对 此时的session key
     TITLE_LENGTH = 10   # 取挑战的标题的时候 取内容的长度值xxx作为标题
+    BACK_PASSWORD_EXP = 30 * 60  # 找回密码的邮箱验证时长 单位 秒
+    EMAIL_HOST_SERVER = "smtp.163.com"
+    EMAIL_SENDER = "ezgym_bbs@163.com"
+    EMAIL_SENDER_CODE = "ljyljh123"
+    EMAIL_TITLE = "ezgym论坛密码找回"
+    CALLBACK_URL = ""   # 密码找回的回调页面 此页面会发给用户的邮箱
+    RECEIVER_NICK = "尊敬的用户"  # 接收者别名
 
 
 class DefaultConfig(BaseConfig):

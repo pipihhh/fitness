@@ -84,6 +84,13 @@ class SelectMap(object):
         WHERE u.delete_flag=0 AND ui.delete_flag=0 AND create_time>=%s AND create_time<%s
     """
 
+    user_by_email = """
+        SELECT u.id as id,account,permission,nick_name,email,gender,avatar,age,create_time
+        FROM ezgym.user u INNER JOIN ezgym.user_info ui
+        ON u.id=ui.user_id
+        WHERE ui.email=%s AND u.delete_flag=0 AND ui.delete_flag=0
+    """
+
     course_by_create = """
         SELECT id, type, name, create_time, level, burning FROM ezgym.course WHERE name = %s
     """
@@ -193,6 +200,10 @@ class UpdateMap(object):
 
     update_user_by_id = """
         UPDATE ezgym.user SET account = %s, password = %s WHERE id = %s AND delete_flag = 0
+    """
+
+    update_user_by_email = """
+        UPDATE ezgym.user SET password=%s WHERE id=%s AND delete_flag=0
     """
 
     update_password_by_id = """

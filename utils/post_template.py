@@ -1,3 +1,4 @@
+from flask_restful import reqparse
 from general.response import Response
 from conf.code import FORMAT_ERROR
 
@@ -10,7 +11,12 @@ def post(valid_class, parse, template):
     :param template:
     :return:
     """
-    valid = valid_class(parse.parse_args())
+    if isinstance(parse, dict):
+        valid = valid_class(parse)
+    elif isinstance(parse, reqparse.RequestParser):
+        valid = valid_class(parse.parse_args())
+    else:
+        raise ValueError("parse must be dict or RequestParser")
     err_map = valid.valid_data()
     if err_map:
         response = Response()
