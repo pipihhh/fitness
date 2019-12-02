@@ -88,14 +88,14 @@ class Email(Resource):
 class EmailValid(BaseValid):
     def valid(self):
         if hasattr(self, "email"):
+            if request.method == "PUT":
+                email = getattr(self, "email")
+                uid = getattr(self, "uid")
+                if email in Email.EMAIL_MAP:
+                    if Email.EMAIL_MAP[email]["uid"] == uid:
+                        return
+                    raise InvalidArgumentException("错误的uid")
             return
-        if request.method == "PUT":
-            email = getattr(self, "email")
-            uid = getattr(self, "uid")
-            if email in Email.EMAIL_MAP:
-                if Email.EMAIL_MAP[email]["uid"] == uid:
-                    return
-                raise InvalidArgumentException("错误的uid")
         raise InvalidArgumentException("缺少email字段")
 
     def email_valid(self, email):
