@@ -27,6 +27,7 @@ class Email(Resource):
         self.SMTP.ehlo(current_app.config["EMAIL_HOST_SERVER"])
         self.SMTP.login(current_app.config["EMAIL_SENDER"], current_app.config["EMAIL_SENDER_CODE"])
 
+    @idempotent
     def put(self):
         response = Response()
         kwargs = GeneralObject()
@@ -43,6 +44,8 @@ class Email(Resource):
             init_error_message(response, message=str(e))
         return jsonify(response.dict_data)
 
+    @idempotent
+    @throttle(2)
     def post(self):
         response = Response()
         try:

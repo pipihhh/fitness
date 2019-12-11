@@ -52,7 +52,7 @@ class SelectMap(object):
     user_info_with_login = """
         SELECT u.id,u.account,u.permission,
         ui.phone,ui.email,ui.gender,ui.avatar,
-        ui.description,u.password,ui.create_time,ui.nick_name
+        ui.description,u.password,ui.create_time,ui.nick_name,ui.age
         FROM ezgym.user u INNER JOIN ezgym.user_info ui
         ON u.id = ui.user_id WHERE u.account = %s AND u.delete_flag = 0 AND ui.delete_flag = 0 AND u.password = %s
     """
@@ -128,6 +128,19 @@ class SelectMap(object):
         SELECT id,user_id,title,picture,create_time,`upper` 
         FROM ezgym.blog WHERE delete_flag=0 AND id>{} AND title LIKE '%%{}%%'
         ORDER BY id LIMIT {}
+    """
+
+    blog_list_by_user = """
+        SELECT u.id as user_id,title,picture,`upper` ,create_time,b.id as id
+        FROM ezgym.blog b INNER JOIN ezgym.user u ON u.id=b.user_id
+        WHERE u.id=%s AND b.delete_flag=0 AND b.id>%s
+        ORDER BY b.create_time DESC LIMIT %s,%s
+    """
+
+    blog_list_info = """
+        SELECT id, user_id, title, picture, create_time, "upper" 
+        FROM ezgym.blog
+        WHERE user_id=%s AND delete_flag=0 AND id>%s ORDER BY id LIMIT %s
     """
 
     action_list_by_course_id = """

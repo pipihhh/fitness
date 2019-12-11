@@ -41,7 +41,7 @@ CREATE TABLE `blog` (
 
 LOCK TABLES `blog` WRITE;
 /*!40000 ALTER TABLE `blog` DISABLE KEYS */;
-INSERT INTO `blog` VALUES (1,2,'aaa','bbb','default.jpg','2019-11-14 19:42:30',0,0),(2,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(3,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(4,2,'aaa','bbb','default.jpg','2019-11-14 19:42:37',0,0),(5,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0),(6,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0);
+INSERT INTO `blog` VALUES (1,2,'aaa','bbb','default.jpg','2019-11-14 19:42:30',1,0),(2,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(3,2,'aaa','bbb','default.jpg','2019-11-14 19:42:36',0,0),(4,2,'aaa','bbb','default.jpg','2019-11-14 19:42:37',0,0),(5,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0),(6,2,'aaa','bbb','default.jpg','2019-11-14 19:42:38',0,0);
 /*!40000 ALTER TABLE `blog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -73,7 +73,7 @@ CREATE TABLE `challenge` (
 
 LOCK TABLES `challenge` WRITE;
 /*!40000 ALTER TABLE `challenge` DISABLE KEYS */;
-INSERT INTO `challenge` VALUES (1,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:47:14',0,0,'980b8376-ebda-48eb-a'),(2,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:48:01',0,0,'86aa2740-17b3-4e47-a'),(3,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:49:53',0,0,'136af9f4-603c-4f1e-a'),(4,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 12:42:05',0,0,'b036e698-ebaf-4676-a');
+INSERT INTO `challenge` VALUES (1,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:47:14',1,0,'980b8376-ebda-48eb-a'),(2,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:48:01',3,0,'86aa2740-17b3-4e47-a'),(3,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 11:49:53',0,0,'136af9f4-603c-4f1e-a'),(4,'default.jpg','<div>aaabbbccc</div>','2019-11-09','2019-11-10','2019-11-09 12:42:05',0,0,'b036e698-ebaf-4676-a');
 /*!40000 ALTER TABLE `challenge` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,7 +120,7 @@ CREATE TABLE `comment` (
   `nick_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,6 +129,7 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
+INSERT INTO `comment` VALUES (1,'hahaha','2019-11-15 20:49:33',1,2,'agag',1),(2,'hahaha','2019-11-15 20:49:40',1,2,'agag',1),(3,'hahaha','2019-11-15 20:49:41',1,2,'agag',0),(4,'hahaha','2019-11-15 20:49:42',1,2,'agag',0),(5,'aaa','2019-11-15 20:51:44',1,2,'agag',0),(6,'bbb','2019-11-15 20:52:06',1,2,'agag',0);
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,7 +150,7 @@ CREATE TABLE `course` (
   `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `course_name_uindex` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -243,6 +244,33 @@ LOCK TABLES `reply` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `upper_log`
+--
+
+DROP TABLE IF EXISTS `upper_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `upper_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `blog_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `create_time` datetime NOT NULL,
+  `delete_flag` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='点赞表的记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `upper_log`
+--
+
+LOCK TABLES `upper_log` WRITE;
+/*!40000 ALTER TABLE `upper_log` DISABLE KEYS */;
+INSERT INTO `upper_log` VALUES (4,1,2,'2019-11-15 21:03:07',0);
+/*!40000 ALTER TABLE `upper_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user`
 --
 
@@ -267,7 +295,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,'account','12d63e1c16c9096f0e6d4a191b53a2ae',255,0,'feed2a6c-255b-4bd6-8'),(4,'root','891504783465bfe2474b3f96dcbd4ac7',1,0,'cc11a851-0403-4501-b'),(5,'root1','891504783465bfe2474b3f96dcbd4ac7',1,0,'778a42ac-f8a4-4326-9'),(6,'root2','891504783465bfe2474b3f96dcbd4ac7',1,0,'3005273a-ad8c-4d84-b'),(7,'root3','891504783465bfe2474b3f96dcbd4ac7',1,0,'ed7af1fe-441c-4352-b'),(8,'root4','891504783465bfe2474b3f96dcbd4ac7',1,0,'54fc6e03-4f04-40f9-a');
+INSERT INTO `user` VALUES (2,'account','86126e01502341a4ea875125e5b674db',255,0,'feed2a6c-255b-4bd6-8'),(4,'root','891504783465bfe2474b3f96dcbd4ac7',1,0,'cc11a851-0403-4501-b'),(5,'root1','891504783465bfe2474b3f96dcbd4ac7',1,0,'778a42ac-f8a4-4326-9'),(6,'root2','891504783465bfe2474b3f96dcbd4ac7',1,0,'3005273a-ad8c-4d84-b'),(7,'root3','891504783465bfe2474b3f96dcbd4ac7',1,0,'ed7af1fe-441c-4352-b'),(8,'root4','891504783465bfe2474b3f96dcbd4ac7',1,0,'54fc6e03-4f04-40f9-a');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -284,7 +312,7 @@ CREATE TABLE `user_info` (
   `phone` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gender` tinyint(4) NOT NULL,
-  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '/media/images/default_avatar.jpg',
+  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '/media/images/default.jpg',
   `age` int(11) NOT NULL,
   `nick_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -301,7 +329,7 @@ CREATE TABLE `user_info` (
 
 LOCK TABLES `user_info` WRITE;
 /*!40000 ALTER TABLE `user_info` DISABLE KEYS */;
-INSERT INTO `user_info` VALUES (1,2,'13000999988',NULL,1,'/index/static/default.png',18,'agag',NULL,'2019-11-05 16:29:36',0),(3,4,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:08',0),(4,5,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:19',0),(5,6,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:24',0),(6,7,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:27',0),(7,8,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:30',0);
+INSERT INTO `user_info` VALUES (1,2,'13000999988','zenofpy@qq.com',1,'/index/static/default.png',18,'agag',NULL,'2019-11-05 16:29:36',0),(3,4,'13088997766','867649189@qq.com',0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:08',0),(4,5,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:19',0),(5,6,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:24',0),(6,7,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:27',0),(7,8,'13088997766',NULL,0,'/media/images/default_avatar.jpg',18,'ppp',NULL,'2019-11-07 10:26:30',0);
 /*!40000 ALTER TABLE `user_info` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -314,4 +342,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-14 20:08:37
+-- Dump completed on 2019-12-11 20:52:10

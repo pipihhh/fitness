@@ -24,33 +24,38 @@ class UserList(Resource):
         """
         response = Response()
         try:
-            valid = UserListValid(dict(id=request.args.get("id", 0)))
-            data = valid.clean_data
-            limit = current_app.config["PAGE_OFFSET"]
-            ret = execute_query_sql(SelectMap.user_list_by_offset, [data.get("query_id", 0), limit])
-            if ret == ():
-                raise UserDoesNotExistException("id不存在")
-            response.data = {
-                "user_list": [{
-                    "id": user[0],
-                    "permission": user[1], "account": user[2], "nick_name": user[3],
-                    "age": user[4], "avatar": user[5], "gender": user[6], "email": user[7],
-                    "phone": user[8], "description": user[9], "create_time": user[10]
-                } for user in ret],
-                "count": len(ret),
-                "query_id": ret[-1][0],
-                "last_query_id": data.get("query_id", 0),
-                "page_offset": limit
-            }
+            tag = request.args.get("tag", "back")
+            func = getattr(self, f"_{tag}_list")
+            func(response)
         except (KeyError, UserDoesNotExistException) as e:
             init_key_error_handler(response, e)
         return jsonify(response.dict_data)
+
+    def _back_list(self, response):
+        valid = UserListValid(dict(id=request.args.get("id", 0)))
+        data = valid.clean_data
+        limit = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        ret = execute_query_sql(SelectMap.user_list_by_offset, [data.get("query_id", 0), limit])
+        if ret == ():
+            raise UserDoesNotExistException("id不存在")
+        response.data = {
+            "user_list": [{
+                "id": user[0],
+                "permission": user[1], "account": user[2], "nick_name": user[3],
+                "age": user[4], "avatar": user[5], "gender": user[6], "email": user[7],
+                "phone": user[8], "description": user[9], "create_time": user[10]
+            } for user in ret],
+            "count": len(ret),
+            "query_id": ret[-1][0],
+            "last_query_id": data.get("query_id", 0),
+            "page_offset": limit
+        }
 
 
 class UserListValid(BaseValid):
     def id_valid(self, _id):
         if isinstance(_id, str):
             raise InvalidArgumentException("错误的id数据类型")
-        ret = execute_query_sql(SelectMap.user_valid_by_id, (_id, ), lambda c: c.fetchone())
+        ret = execute_query_sql(SelectMap.user_valid_by_id, (_id,), lambda c: c.fetchone())
         if not ret and _id != 0:
             raise InvalidArgumentException("用户不存在")

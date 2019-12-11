@@ -56,7 +56,7 @@ class User(Resource):
                 "permission": ret[2], "phone": ret[3],
                 "email": ret[4], "gender": ret[5],
                 "avatar": ret[6], "description": ret[7],
-                "nick_name": ret[10], "create_time": ret[9],
+                "nick_name": ret[10], "create_time": ret[9], "age": ret[11],
                 "token": self._make_jwt(ret)
             }
         except UserDoesNotExistException as e:
@@ -122,7 +122,6 @@ class User(Resource):
             connection.close()
         return jsonify(response.dict_data)
 
-    @idempotent
     @permission_valid(NORMAL)
     def put(self):
         """
@@ -198,7 +197,7 @@ class User(Resource):
             params = valid.clean_data
             user_info_args = [
                 params["phone"], params.get("email"), params["gender"], params["avatar"],
-                params["age"], params["nick_name"], params.get("nick_name"), user_id
+                params["age"], params["nick_name"], params.get("description"), user_id
             ]
             user_args = [params["account"], md5(params["password"]), user_id]
             update_sql_execute(cursor, UpdateMap.update_user_info_by_user_id, user_info_args)
