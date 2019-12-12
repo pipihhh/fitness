@@ -33,6 +33,22 @@ class PersonalInfo(Resource):
             "count": len(blog_list), "page_offset": offset
         }
 
+    @permission_valid(NORMAL)
+    def _fans_info(self, response):
+        _id = getattr(request, "user")["id"]
+        fans = fetchone_dict(SelectMap.fans_info, (_id, ), GeneralObject)
+        response.data = {
+            "count": fans.count
+        }
+
+    @permission_valid(NORMAL)
+    def _follow_info(self, response):
+        _id = getattr(request, "user")["id"]
+        follows = fetchone_dict(SelectMap.follow_info, (_id, ), GeneralObject)
+        response.data = {
+            "count": follows.count
+        }
+
     def _get_content(self, content):
         soup = BeautifulSoup(content, "html.parser")
         length = current_app.config["TITLE_LENGTH"]

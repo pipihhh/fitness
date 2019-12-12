@@ -21,10 +21,10 @@ def jwt_handler():
         token = request.args.get("token")
     if token is not None:
         response = Response()
-        header, payload, signature = token.split(".")
-        header = decode_base64(header)
-        payload = decode_base64(payload)
         try:
+            header, payload, signature = token.split(".")
+            header = decode_base64(header)
+            payload = decode_base64(payload)
             payload_handler(payload)
             alg = header_handler(header)
             signature_handler(header, payload, signature, alg)
@@ -36,6 +36,12 @@ def jwt_handler():
             response.code = FORMAT_ERROR
             response.errno = 1
             response.data = {"msg": "错误的token:" + str(e)}
+        except ValueError:
+            response.code = FORMAT_ERROR
+            response.errno = 1
+            response.data = {
+                "msg": "token格式错误"
+            }
         except Exception as e:
             response.code = SERVER_ERROR
             response.errno = 1

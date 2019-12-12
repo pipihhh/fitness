@@ -34,6 +34,10 @@ class InsertMap(object):
         INSERT INTO ezgym.comment(content, create_time, blog_id, user_id, nick_name) VALUES (%s,%s,%s,%s,%s)
     """
 
+    follow = """
+        INSERT INTO ezgym.follow(from_user, to_user, create_time) VALUES (%s,%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -170,6 +174,18 @@ class SelectMap(object):
         FROM ezgym.comment WHERE blog_id=%s AND delete_flag=0
     """
 
+    fans_info = """
+        SELECT count(1) as "count" FROM ezgym.follow WHERE to_user=%s
+    """
+
+    follow_info = """
+        SELECT count(1) as 'count' FROM ezgym.follow WHERE from_user=%s
+    """
+
+    follow_valid = """
+        SELECT id, from_user, to_user, create_time FROM ezgym.follow WHERE from_user=%s AND to_user=%s
+    """
+
 
 class DeleteMap(object):
     user_by_id = """
@@ -205,6 +221,10 @@ class DeleteMap(object):
 
     challenge_by_id = """
         UPDATE ezgym.challenge SET delete_flag=1 WHERE id=%s AND delete_flag=0
+    """
+
+    follow = """
+        DELETE FROM ezgym.follow WHERE from_user=%s AND to_user=%s
     """
 
 

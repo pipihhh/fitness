@@ -4,7 +4,7 @@ from flask_restful import Resource, reqparse
 from conf.permission import ADMIN, NORMAL, permission_valid
 from conf.code import FORMAT_ERROR, SERVER_ERROR
 from general.response import Response
-from general.sql_map import SelectMap, UpdateMap
+from general.sql_map import SelectMap, UpdateMap, InsertMap, DeleteMap
 from general.db_pool import fetchall_dict, fetchone_dict, execute_sql
 from general.vaild import BaseValid
 from general.exception import UserDoesNotExistException, InvalidArgumentException, UserAlreadyExistException
