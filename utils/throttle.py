@@ -1,6 +1,7 @@
 import time
 from functools import wraps
-from flask import request, current_app, jsonify
+from flask import request, jsonify
+from conf.default import DefaultConfig
 from general.response import Response
 from conf.code import THROTTLE_ERROR
 
@@ -16,7 +17,7 @@ def throttle(times, seconds=None):
     def wrapper(func):
         nonlocal seconds
         nonlocal times
-        seconds = seconds or current_app.config["THROTTLE_SECONDS"]
+        seconds = seconds or DefaultConfig.THROTTLE_SECONDS
         ip_map = {}
 
         @wraps(func)

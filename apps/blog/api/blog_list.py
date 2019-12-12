@@ -22,11 +22,13 @@ class BlogList(Resource):
             func(response)
         except Exception as e:
             init_key_error_handler(response, e, "信息:")
+            import traceback
+            traceback.print_exc()
         return jsonify(response.dict_data)
 
     def _back_list(self, response):
         _id = request.args.get("id", 0)
-        offset = current_app.config["PAGE_OFFSET"]
+        offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
         blog_list = fetchall_dict(SelectMap.blog_list_by_id, (_id, offset), BlogTemplate)
         if blog_list:
             response.data = {

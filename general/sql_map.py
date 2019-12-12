@@ -58,7 +58,7 @@ class SelectMap(object):
     """
 
     user_valid = """
-        SELECT id,account,password FROM ezgym.user WHERE account = %s
+        SELECT id,account,password FROM ezgym.user WHERE account = %s AND delete_flag=0
     """
 
     user_valid_by_id = """
@@ -117,7 +117,9 @@ class SelectMap(object):
     """
 
     blog_list_by_id = """
-        SELECT id, user_id, title, picture, create_time, `upper` FROM ezgym.blog WHERE id>%s AND delete_flag=0 ORDER BY id LIMIT %s
+        SELECT b.id as id,b.user_id as user_id,title,picture,b.create_time as create_time,`upper`,nick_name
+        FROM ezgym.blog b INNER JOIN ezgym.user_info ui ON b.user_id=ui.user_id
+        WHERE b.id>%s AND b.delete_flag=0 AND ui.delete_flag=0 ORDER BY b.id LIMIT %s
     """
 
     blog_by_id = """

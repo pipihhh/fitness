@@ -2,6 +2,8 @@ from utils.generic_import import *
 
 
 class PersonalInfo(Resource):
+
+    @permission_valid(NORMAL)
     def get(self):
         response = Response()
         try:
@@ -19,6 +21,9 @@ class PersonalInfo(Resource):
                                   GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
+        user = fetchone_dict(SelectMap.user_info_by_user_id, (getattr(request, "user")["id"], ), GeneralObject)
+        for blog in blog_list:
+            blog.nick_name = user.nick_name
         response.data = {
             "blog_list": [blog.data for blog in blog_list],
             "query_id": blog_list[-1].id, "last_query_id": query_id,

@@ -45,7 +45,7 @@ class Email(Resource):
         return jsonify(response.dict_data)
 
     @idempotent
-    @throttle(2)
+    @throttle(2, 1)
     def post(self):
         response = Response()
         try:
