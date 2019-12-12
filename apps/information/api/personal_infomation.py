@@ -21,11 +21,19 @@ class PersonalInfo(Resource):
                                   GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
-        user = fetchone_dict(SelectMap.user_info_by_user_id, (getattr(request, "user")["id"], ), GeneralObject)
+        user = fetchone_dict(SelectMap.user_info_by_user_id, (getattr(request, "user")["id"],), GeneralObject)
         for blog in blog_list:
             blog.nick_name = user.nick_name
+            comment_list = fetchall_dict(SelectMap.comment_by_blog_id, (blog.id,), GeneralObject)
+            blog.comment_count = len(comment_list)
+            blog.content = self._get_content(blog.content)
         response.data = {
             "blog_list": [blog.data for blog in blog_list],
             "query_id": blog_list[-1].id, "last_query_id": query_id,
             "count": len(blog_list), "page_offset": offset
         }
+
+    def _get_content(self, content):
+        soup = BeautifulSoup(content, "html.parser")
+        length = current_app.config["TITLE_LENGTH"]
+        return soup.text[:length + 1] + "..."
