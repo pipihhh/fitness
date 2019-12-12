@@ -70,11 +70,15 @@ class Blog(Resource):
         return jsonify(response.dict_data)
 
     @idempotent
-    @permission_valid(ADMIN)
+    @permission_valid(NORMAL)
     def delete(self):
         response = Response()
         try:
             _id = request.json["id"]
+            b = fetchone_dict(SelectMap.blog_by_id, (_id, ), GeneralObject)
+            permission = getattr(request, "user")["permission"]
+            if getattr(request, "user")["id"] != b.user_id and permission & ADMIN != ADMIN:
+                raise InvalidArgumentException("权限不足")
             ret = execute_sql(DeleteMap.blog_by_id, (_id, ))
             if ret == 0:
                 raise InvalidArgumentException("删除失败")
@@ -86,8 +90,11 @@ class Blog(Resource):
 
 class BlogValid(BaseValid):
     def picture_valid(self, picture):
+        import os
+        if picture == '':
+            setattr(self, "picture", os.path.join(current_app.config["MEDIA_URL"], "default_blog.jpg"))
         if is_file_exist(picture):
-            setattr(self, "picture", current_app.config["MEDIA_URL"] + picture)
+            setattr(self, "picture", os.path.join(current_app.config["MEDIA_URL"], picture))
             return
         raise InvalidArgumentException("图片不存在 请先上传!")
 

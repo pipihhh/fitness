@@ -140,7 +140,7 @@ class SelectMap(object):
     """
 
     blog_list_info = """
-        SELECT id, user_id, title, picture, create_time, "upper" 
+        SELECT id, user_id, title, picture, create_time, `upper`,content
         FROM ezgym.blog
         WHERE user_id=%s AND delete_flag=0 AND id>%s ORDER BY id LIMIT %s
     """
@@ -163,6 +163,11 @@ class SelectMap(object):
         SELECT id, picture, content, start_time, end_time, create_time, pageviews 
         FROM ezgym.challenge WHERE id>%s AND delete_flag=0 ORDER BY id 
         LIMIT %s
+    """
+
+    comment_by_blog_id = """
+        SELECT id, content, create_time, blog_id, user_id, nick_name 
+        FROM ezgym.comment WHERE blog_id=%s AND delete_flag=0
     """
 
 
