@@ -3,7 +3,6 @@ from utils.generic_import import *
 
 class PersonalInfo(Resource):
 
-    @permission_valid(NORMAL)
     def get(self):
         response = Response()
         try:
@@ -17,15 +16,16 @@ class PersonalInfo(Resource):
     def _blog_info(self, response):
         query_id = request.args.get("id", 0)
         offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
-        blog_list = fetchall_dict(SelectMap.blog_list_info, (getattr(request, "user")["id"], query_id, offset),
+        user_id = request.args.get("user_id", getattr(request, "user")["id"])
+        blog_list = fetchall_dict(SelectMap.blog_list_info, (user_id, query_id, offset),
                                   GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
-        user = fetchone_dict(SelectMap.user_info_by_user_id, (getattr(request, "user")["id"],), GeneralObject)
+        user = fetchone_dict(SelectMap.user_info_by_user_id, (user_id,), GeneralObject)
         for blog in blog_list:
             blog.nick_name = user.nick_name
-            comment_list = fetchall_dict(SelectMap.comment_by_blog_id, (blog.id,), GeneralObject)
-            blog.comment_count = len(comment_list)
+            comment = fetchone_dict(SelectMap.comment_and_reply_count_by_blog, (blog.id,), GeneralObject)
+            blog.comment_count = comment.count
             blog.content = self._get_content(blog.content)
         response.data = {
             "blog_list": [blog.data for blog in blog_list],
@@ -33,21 +33,30 @@ class PersonalInfo(Resource):
             "count": len(blog_list), "page_offset": offset
         }
 
-    @permission_valid(NORMAL)
-    def _fans_info(self, response):
-        _id = getattr(request, "user")["id"]
-        fans = fetchone_dict(SelectMap.fans_info, (_id, ), GeneralObject)
-        response.data = {
-            "count": fans.count
+    def _fans_and_follow_info(self, resp):
+        user_id = request.args.get("id", getattr(request, "user")["id"])
+        fans = fetchone_dict(SelectMap.fans_info, (user_id, ), GeneralObject)
+        follows = fetchone_dict(SelectMap.follow_info, (user_id, ), GeneralObject)
+        resp.data = {
+            "fans": fans.count, "follow": follows.count
         }
 
-    @permission_valid(NORMAL)
+    def _fans_info(self, response):
+        _id = request.args.get("id", getattr(request, "user")["id"])
+        fans = fetchone_dict(SelectMap.fans_info, (_id, ), GeneralObject)
+        response.data = {
+            "fans": fans.count
+        }
+
     def _follow_info(self, response):
-        _id = getattr(request, "user")["id"]
+        _id = request.args.get("id", getattr(request, "user")["id"])
         follows = fetchone_dict(SelectMap.follow_info, (_id, ), GeneralObject)
         response.data = {
-            "count": follows.count
+            "follows": follows.count
         }
+
+    def _comment_info(self, resp):
+        user_id = request.args.get("id", getattr(request, "user")["id"])
 
     def _get_content(self, content):
         soup = BeautifulSoup(content, "html.parser")

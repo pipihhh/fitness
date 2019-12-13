@@ -183,9 +183,10 @@ class SelectMap(object):
         SELECT id, content, create_time, blog_id, user_id, nick_name FROM ezgym.comment WHERE delete_flag=0 AND id=%s
     """
 
-    comment_and_reply_by_blog = """
-        SELECT * 
-        FROM ezgym.comment LEFT JOIN ezgym.reply
+    comment_and_reply_count_by_blog = """
+        SELECT count(1) as "count" 
+        FROM ezgym.comment c LEFT JOIN ezgym.reply r ON c.id=r.comment_id
+        WHERE c.blog_id=%s AND c.delete_flag=0
     """
 
     reply_valid = """

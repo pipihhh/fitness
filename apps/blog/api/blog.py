@@ -36,9 +36,13 @@ class Blog(Resource):
                 "nick_name": user.nick_name, "gender": user.gender, "email": user.email,
                 "avatar": user.avatar, "permission": user.permission
             })
-            # fetchall_dict(SelectMap)
+            req = fetchone_dict(SelectMap.comment_and_reply_count_by_blog, (_id, ), GeneralObject)
+            response.data.update({
+                "comment_count": req.count
+            })
         except Exception as e:
             init_key_error_handler(response, e, "信息:")
+        print(response.dict_data)
         return jsonify(response.dict_data)
 
     @idempotent
