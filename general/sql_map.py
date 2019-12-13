@@ -38,6 +38,11 @@ class InsertMap(object):
         INSERT INTO ezgym.follow(from_user, to_user, create_time) VALUES (%s,%s,%s)
     """
 
+    reply = """
+        INSERT INTO ezgym.reply(comment_id,create_time,user_id,nick_name,reply_id,content)
+        VALUES (%s,%s,%s,%s,%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -172,6 +177,20 @@ class SelectMap(object):
     comment_by_blog_id = """
         SELECT id, content, create_time, blog_id, user_id, nick_name 
         FROM ezgym.comment WHERE blog_id=%s AND delete_flag=0
+    """
+
+    comment_valid = """
+        SELECT id, content, create_time, blog_id, user_id, nick_name FROM ezgym.comment WHERE delete_flag=0 AND id=%s
+    """
+
+    comment_and_reply_by_blog = """
+        SELECT * 
+        FROM ezgym.comment LEFT JOIN ezgym.reply
+    """
+
+    reply_valid = """
+        SELECT id, comment_id, create_time, user_id, nick_name, reply_id
+        FROM ezgym.reply WHERE delete_flag=0 AND id=%s
     """
 
     fans_info = """

@@ -5,7 +5,7 @@ from general.vaild import BaseValid
 from utils.date_utils import is_file_exist
 from general.exception import InvalidArgumentException
 from general.sql_map import SelectMap, InsertMap, DeleteMap
-from general.db_pool import execute_query_sql, execute_sql, fetchone_dict
+from general.db_pool import execute_query_sql, execute_sql, fetchone_dict, fetchall_dict
 from general.response import Response
 from utils.error_handler import init_key_error_handler
 from utils.idempotent_request import idempotent
@@ -36,10 +36,9 @@ class Blog(Resource):
                 "nick_name": user.nick_name, "gender": user.gender, "email": user.email,
                 "avatar": user.avatar, "permission": user.permission
             })
+            # fetchall_dict(SelectMap)
         except Exception as e:
             init_key_error_handler(response, e, "信息:")
-            import traceback
-            traceback.print_exc()
         return jsonify(response.dict_data)
 
     @idempotent

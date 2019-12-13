@@ -19,7 +19,7 @@ class BaseConfig(object):
     SALT = "jsjkfhaskjhdjkashkfj"  # 各种加密时候所加的盐 包含密码的加密 默认无需修改
     JWT_TYPE = "JWT"   # token使用的协议 默认只有这个
     JWT_ALG = "sha256"  # token的加密算法
-    EXP_MIN = 30    # token的失效时间 分钟为单位
+    EXP_MIN = 24 * 60    # token的失效时间 分钟为单位
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S"  # 时间的格式,如2019-11-11 11:11:11
     PAGE_OFFSET = 9   # 分页相关，每页显示的用户数
     THROTTLE_SECONDS = 5  # 5秒内只能访问xx次
