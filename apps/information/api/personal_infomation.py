@@ -56,7 +56,20 @@ class PersonalInfo(Resource):
         }
 
     def _comment_info(self, resp):
-        user_id = request.args.get("id", getattr(request, "user")["id"])
+        user_id = request.args.get("user_id") or getattr(request, "user")["id"]
+        query_id = request.args.get("id", 0)
+        offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        comment_list = fetchall_dict(SelectMap.comment_personal, (user_id, query_id, offset), GeneralObject)
+        if not comment_list:
+            raise UserDoesNotExistException("暂无评论")
+        for comment in comment_list:
+            reply_list = fetchall_dict(SelectMap.reply_personal, (comment.id, ), GeneralObject)
+            comment.reply_list = [reply.data for reply in reply_list]
+        resp.data = {
+            "comment_list": [comment.data for comment in comment_list],
+            "count": len(comment_list), "query_id": comment_list[-1].id, "last_query_id": query_id,
+            "offset": offset
+        }
 
     def _get_content(self, content):
         soup = BeautifulSoup(content, "html.parser")

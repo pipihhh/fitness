@@ -189,6 +189,17 @@ class SelectMap(object):
         WHERE c.blog_id=%s AND c.delete_flag=0
     """
 
+    comment_personal = """
+        SELECT id, content, create_time, blog_id, user_id, nick_name
+        FROM ezgym.comment
+        WHERE user_id=%s AND delete_flag=0 AND id>%s ORDER BY id LIMIT %s
+    """
+
+    reply_personal = """
+        SELECT id, comment_id, create_time, user_id, nick_name, reply_id, content
+        FROM ezgym.reply WHERE delete_flag=0 AND comment_id=%s ORDER BY reply_id
+    """
+
     reply_valid = """
         SELECT id, comment_id, create_time, user_id, nick_name, reply_id
         FROM ezgym.reply WHERE delete_flag=0 AND id=%s
