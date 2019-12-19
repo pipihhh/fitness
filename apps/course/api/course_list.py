@@ -12,7 +12,8 @@ class CourseList(Resource):
         args = request.args
         course_id = args.get("id", 0)
         response = Response()
-        offset = current_app.config["PAGE_OFFSET"]
+        offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        offset = int(offset)
         try:
             ret_list = execute_query_sql(SelectMap.course_list_by_page, [course_id, offset])
             ret_json = []

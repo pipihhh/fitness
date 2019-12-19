@@ -29,6 +29,7 @@ class BlogList(Resource):
     def _back_list(self, response):
         _id = request.args.get("id", 0)
         offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        offset = int(offset)
         blog_list = fetchall_dict(SelectMap.blog_list_by_id, (_id, offset), BlogTemplate)
         if blog_list:
             response.data = {
