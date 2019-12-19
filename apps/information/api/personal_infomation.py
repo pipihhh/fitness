@@ -76,3 +76,14 @@ class PersonalInfo(Resource):
         soup = BeautifulSoup(content, "html.parser")
         length = current_app.config["TITLE_LENGTH"]
         return soup.text[:length + 1] + "..."
+
+    def _course_info(self, resp):
+        user_id = getattr(request, "user")["id"]
+        course_list = fetchall_dict(SelectMap.course_list_by_user_id, (user_id, ), GeneralObject)
+        if course_list:
+            resp.data = {
+                "course_list": [course.data for course in course_list],
+                "count": len(course_list)
+            }
+        else:
+            raise UserDoesNotExistException("暂无选课")

@@ -16,7 +16,7 @@ def idempotent(func):
     @functools.wraps(func)
     def inner(*args, **kwargs):
         response = Response()
-        content = request.data
+        content = f"{request.url}:{request.remote_addr}"
         md5 = hashlib.md5(current_app.config["SALT"].encode(current_app.config["DB_CHARSET"]))
         md5.update(content)
         val = md5.hexdigest()

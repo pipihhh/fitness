@@ -43,6 +43,14 @@ class InsertMap(object):
         VALUES (%s,%s,%s,%s,%s,%s)
     """
 
+    collect = """
+        INSERT INTO ezgym.collect_course(user_id, course_id, create_time) VALUES (%s,%s,%s)
+    """
+
+    file_map = """
+        INSERT INTO ezgym.file_map(filename, md5) VALUES (%s,%s)
+    """
+
 
 class SelectMap(object):
     user_by_number = """
@@ -113,8 +121,16 @@ class SelectMap(object):
     """
 
     course_list_by_page = """
-        SELECT id,type,name,create_time,level,burning FROM ezgym.course
-        WHERE id > %s AND delete_flag = 0 ORDER BY id LIMIT %s
+        SELECT id,type,name,create_time,level,burning
+        FROM ezgym.course
+        WHERE id>%s AND delete_flag=0
+        ORDER BY id LIMIT %s
+    """
+
+    course_list_by_user_id = """
+        SELECT cou.id as id,type,name,cou.create_time as create_time,level,burning,cc.id as collect_id
+        FROM ezgym.course cou INNER JOIN ezgym.collect_course cc ON cou.id=cc.course_id
+        WHERE cc.user_id=%s AND cc.delete_flag=0 AND cou.delete_flag=0
     """
 
     challenge_by_number = """
@@ -217,6 +233,28 @@ class SelectMap(object):
         SELECT id, from_user, to_user, create_time FROM ezgym.follow WHERE from_user=%s AND to_user=%s
     """
 
+    collect_by_course_id = """
+        SELECT id, user_id, course_id, create_time 
+        FROM ezgym.collect_course 
+        WHERE delete_flag=0 AND course_id=%s AND user_id=%s
+    """
+
+    collect_without_flag = """
+        SELECT id, user_id, course_id, create_time
+        FROM ezgym.collect_course 
+        WHERE user_id=%s AND course_id=%s
+    """
+
+    collect_valid = """
+        SELECT id, user_id, course_id, create_time 
+        FROM ezgym.collect_course
+        WHERE id=%s AND delete_flag=0
+    """
+
+    file_map = """
+        SELECT id, filename, md5 FROM ezgym.file_map WHERE md5=%s
+    """
+
 
 class DeleteMap(object):
     user_by_id = """
@@ -256,6 +294,10 @@ class DeleteMap(object):
 
     follow = """
         DELETE FROM ezgym.follow WHERE from_user=%s AND to_user=%s
+    """
+
+    collect = """
+        UPDATE ezgym.collect_course SET delete_flag=1 WHERE id=%s AND delete_flag=0
     """
 
 
@@ -307,4 +349,8 @@ class UpdateMap(object):
 
     blog_upper_dev = """
         UPDATE ezgym.blog SET upper=upper-1 WHERE delete_flag=0 AND id=%s
+    """
+
+    collect_rollback = """
+        UPDATE ezgym.collect_course SET delete_flag=0 WHERE user_id=%s AND course_id=%s AND delete_flag=1
     """

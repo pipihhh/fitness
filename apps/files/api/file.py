@@ -3,6 +3,10 @@ from flask import request, current_app, jsonify
 from flask_restful import Resource
 from utils.file_utils import is_safe, generate_filename, get_suffix
 from utils.idempotent_request import idempotent
+from utils.general_object import GeneralObject
+from general.password_handler import md5
+from general.db_pool import fetchone_dict, execute_sql
+from general.sql_map import SelectMap, InsertMap
 from general.response import Response
 from conf.code import FORMAT_ERROR
 from conf.permission import permission_valid, NORMAL
@@ -38,10 +42,24 @@ class File(Resource):
         file_url = []
         for index, f in enumerate(files):
             file_name = generate_filename() + "." + suffix_list[index]
-            f.save(os.path.join(media_dir, file_name))
+            path = os.path.join(media_dir, file_name)
+            file_name = self._save(f, path, file_name)
             file_url.append({
                 "url": os.path.join(media_url, file_name),
                 "filename": file_name
             })
         response.data = {"msg": file_url}
         return jsonify(response.dict_data)
+
+    def _save(self, file, path, filename):
+        from io import BytesIO
+        if isinstance(file.stream, BytesIO):
+            md5_key = md5(file.stream.read())
+        else:
+            md5_key = md5(file.stream)
+        file_map = fetchone_dict(SelectMap.file_map, (md5_key, ), GeneralObject)
+        if file_map:
+            return file_map.filename
+        file.save(path)
+        execute_sql(InsertMap.file_map, (filename, md5_key), True)
+        return filename

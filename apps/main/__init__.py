@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, current_app
 from flask.json import JSONEncoder
-from apps import user, course, files, challenge, blog, comment, search, email, information, follow, reply
+from apps import user, course, files, challenge, blog, comment, search, email, information, follow, reply, study
 from flask_restful import Api
 from conf.default import DefaultConfig
 from apps.main.handler import before_request, after_request
@@ -34,6 +34,7 @@ def create_app():
     api.add_resource(information.personal_infomation.PersonalInfo, "/api/information")
     api.add_resource(follow.follow.Follow, "/api/follow")
     api.add_resource(reply.reply.Reply, "/api/reply")
+    api.add_resource(study.study.Study, "/api/study")
     return app
 
 
