@@ -16,6 +16,7 @@ class PersonalInfo(Resource):
     def _blog_info(self, response):
         query_id = request.args.get("id", 0)
         offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        offset = int(offset)
         user_id = request.args.get("user_id", getattr(request, "user")["id"])
         blog_list = fetchall_dict(SelectMap.blog_list_info, (user_id, query_id, offset),
                                   GeneralObject)
@@ -34,7 +35,7 @@ class PersonalInfo(Resource):
         }
 
     def _fans_and_follow_info(self, resp):
-        user_id = request.args.get("id", getattr(request, "user")["id"])
+        user_id = request.args.get("id") or getattr(request, "user")["id"]
         fans = fetchone_dict(SelectMap.fans_info, (user_id, ), GeneralObject)
         follows = fetchone_dict(SelectMap.follow_info, (user_id, ), GeneralObject)
         resp.data = {
@@ -42,14 +43,14 @@ class PersonalInfo(Resource):
         }
 
     def _fans_info(self, response):
-        _id = request.args.get("id", getattr(request, "user")["id"])
+        _id = request.args.get("id") or getattr(request, "user")["id"]
         fans = fetchone_dict(SelectMap.fans_info, (_id, ), GeneralObject)
         response.data = {
             "fans": fans.count
         }
 
     def _follow_info(self, response):
-        _id = request.args.get("id", getattr(request, "user")["id"])
+        _id = request.args.get("id") or getattr(request, "user")["id"]
         follows = fetchone_dict(SelectMap.follow_info, (_id, ), GeneralObject)
         response.data = {
             "follows": follows.count

@@ -7,7 +7,8 @@ class ChallengeList(Resource):
         response = Response()
         try:
             _id = request.args.get("id", 0)
-            offset = request.args.get("page_offset", current_app.config["PAGE_OFFSET"])
+            offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+            offset = int(offset)
             challenge_list = fetchall_dict(SelectMap.challenge_list_by_id, (_id, offset), GeneralObject)
             if not challenge_list:
                 raise UserDoesNotExistException("id不存在")
@@ -27,6 +28,8 @@ class ChallengeList(Resource):
     def _get_title(self, challenge):
         soup = BeautifulSoup(challenge.content, "html.parser")
         length = current_app.config["TITLE_LENGTH"]
+        if len(soup.text) <= length:
+            return soup.text
         return soup.text[:length+1] + "..."
 
     def _initial_title(self, challenge_list):

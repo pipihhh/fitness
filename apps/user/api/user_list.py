@@ -35,6 +35,7 @@ class UserList(Resource):
         valid = UserListValid(dict(id=request.args.get("id", 0)))
         data = valid.clean_data
         limit = request.args.get("offset", current_app.config["PAGE_OFFSET"])
+        limit = int(limit)
         ret = execute_query_sql(SelectMap.user_list_by_offset, [data.get("query_id", 0), limit])
         if ret == ():
             raise UserDoesNotExistException("id不存在")
