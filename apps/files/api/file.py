@@ -52,8 +52,9 @@ class File(Resource):
         return jsonify(response.dict_data)
 
     def _save(self, file, path, filename):
-        from io import BytesIO
-        if isinstance(file.stream, BytesIO):
+        from tempfile import SpooledTemporaryFile
+        print(file.stream)
+        if isinstance(file.stream, SpooledTemporaryFile):
             md5_key = md5(file.stream.read())
         else:
             md5_key = md5(file.stream)

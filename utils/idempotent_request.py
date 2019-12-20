@@ -18,7 +18,7 @@ def idempotent(func):
         response = Response()
         content = f"{request.url}:{request.remote_addr}"
         md5 = hashlib.md5(current_app.config["SALT"].encode(current_app.config["DB_CHARSET"]))
-        md5.update(content)
+        md5.update(content.encode(current_app.config["DB_CHARSET"]))
         val = md5.hexdigest()
         if val in content_set:
             response.code = THROTTLE_ERROR
