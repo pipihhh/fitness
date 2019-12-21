@@ -52,15 +52,13 @@ class File(Resource):
         return jsonify(response.dict_data)
 
     def _save(self, file, path, filename):
-        from tempfile import SpooledTemporaryFile
-        print(file.stream)
-        if isinstance(file.stream, SpooledTemporaryFile):
-            md5_key = md5(file.stream.read())
-        else:
-            md5_key = md5(file.stream)
+        buf = file.stream.read()
+        md5_key = md5(buf)
         file_map = fetchone_dict(SelectMap.file_map, (md5_key, ), GeneralObject)
         if file_map:
             return file_map.filename
         file.save(path)
+        with open(path, "wb") as new_f:
+            new_f.write(buf)
         execute_sql(InsertMap.file_map, (filename, md5_key), True)
         return filename
