@@ -167,7 +167,22 @@ class SelectMap(object):
     blog_list_info = """
         SELECT id, user_id, title, picture, create_time, `upper`,content
         FROM ezgym.blog
-        WHERE user_id=%s AND delete_flag=0 AND id>%s ORDER BY id LIMIT %s
+        WHERE user_id=%s AND delete_flag=0 ORDER BY id
+    """
+
+    blog_list_comment = """
+        SELECT id, user_id, title, picture, create_time, "upper" 
+        FROM ezgym.blog 
+        WHERE id IN (SELECT com.blog_id
+        FROM ezgym.comment com LEFT JOIN ezgym.reply r ON com.id=r.comment_id
+        WHERE r.user_id=%s OR com.user_id=%s GROUP BY com.id)
+        ORDER BY "upper" DESC,create_time DESC
+    """
+
+    blog_list_upper = """
+        SELECT b.id as id,title,picture,b.user_id as user_id,b.create_time as create_time,"upper"
+        FROM ezgym.blog b INNER JOIN ezgym.upper_log ul ON b.id=ul.blog_id
+        WHERE b.user_id=%s AND ul.user_id=%s AND b.delete_flag=0 AND ul.delete_flag=0
     """
 
     action_list_by_course_id = """
@@ -231,6 +246,18 @@ class SelectMap(object):
 
     follow_valid = """
         SELECT id, from_user, to_user, create_time FROM ezgym.follow WHERE from_user=%s AND to_user=%s
+    """
+
+    follow_list = """
+        SELECT f.id as id,nick_name,avatar,gender,age,to_user as user_id
+        FROM ezgym.follow f INNER JOIN ezgym.user_info ui ON f.to_user=ui.user_id
+        WHERE f.from_user=%s AND ui.delete_flag=0
+    """
+
+    fans_list = """
+        SELECT f.id as id,nick_name,avatar,gender,age,from_user as user_id 
+        FROM ezgym.follow f INNER JOIN ezgym.user_info ui ON f.from_user=ui.user_id
+        WHERE to_user=%s AND ui.delete_flag=0
     """
 
     collect_by_course_id = """

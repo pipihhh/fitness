@@ -60,6 +60,26 @@ class BlogList(Resource):
         else:
             raise UserDoesNotExistException("数据不存在")
 
+    def _comment_list(self, resp):
+        user_id = request.args.get("id") or request.user["id"]
+        blog_list = fetchall_dict(SelectMap.blog_list_comment, (user_id, user_id), GeneralObject)
+        if not blog_list:
+            raise UserDoesNotExistException("数据不存在")
+        resp.data = {
+            "blog_list": [blog.data for blog in blog_list],
+            "count": len(blog_list)
+        }
+
+    def _upper_list(self, resp):
+        user_id = request.args.get("id") or request.user["id"]
+        blog_list = fetchall_dict(SelectMap.blog_list_upper, (user_id, user_id), GeneralObject)
+        if not blog_list:
+            raise UserDoesNotExistException("数据不存在")
+        resp.data = {
+            "blog_list": [blog.data for blog in blog_list],
+            "count": len(blog_list)
+        }
+
 
 class BlogListValid(UserListValid):
     def _page_valid(self, page):

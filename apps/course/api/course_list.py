@@ -1,3 +1,4 @@
+import os
 from flask import current_app, jsonify, request
 from flask_restful import Resource
 from general.sql_map import SelectMap
@@ -15,6 +16,7 @@ class CourseList(Resource):
         response = Response()
         offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
         offset = int(offset)
+        default_url = os.path.join(current_app.config["MEDIA_URL"], "default_course.jpg")
         try:
             user_id = getattr(request, "user", {}).get("id")
             ret_list = fetchall_dict(SelectMap.course_list_by_page, (course_id, offset), GeneralObject)
@@ -25,6 +27,8 @@ class CourseList(Resource):
                                             GeneralObject)
                     course.is_collect = True if collect else False
                     course.collect_id = collect.id if collect else None
+                    action = fetchone_dict(SelectMap.action_list_by_course_id, (course.id,), GeneralObject)
+                    course.picture = action.picture if action else default_url
                     ret_json.append(course.data)
             else:
                 for course in ret_list:

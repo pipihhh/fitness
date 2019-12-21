@@ -1,3 +1,4 @@
+import os
 from utils.generic_import import *
 
 
@@ -14,11 +15,8 @@ class PersonalInfo(Resource):
         return jsonify(response.dict_data)
 
     def _blog_info(self, response):
-        query_id = request.args.get("id", 0)
-        offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
-        offset = int(offset)
-        user_id = request.args.get("user_id", getattr(request, "user")["id"])
-        blog_list = fetchall_dict(SelectMap.blog_list_info, (user_id, query_id, offset),
+        user_id = request.args.get("user_id") or getattr(request, "user")["id"]
+        blog_list = fetchall_dict(SelectMap.blog_list_info, (user_id, ),
                                   GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
@@ -30,8 +28,7 @@ class PersonalInfo(Resource):
             blog.content = self._get_content(blog.content)
         response.data = {
             "blog_list": [blog.data for blog in blog_list],
-            "query_id": blog_list[-1].id, "last_query_id": query_id,
-            "count": len(blog_list), "page_offset": offset
+            "count": len(blog_list)
         }
 
     def _fans_and_follow_info(self, resp):
@@ -78,9 +75,13 @@ class PersonalInfo(Resource):
         return soup.text[:length + 1] + "..."
 
     def _course_info(self, resp):
-        user_id = getattr(request, "user")["id"]
+        default_url = os.path.join(current_app.config["MEDIA_URL"], "default_course.jpg")
+        user_id = request.args.get("id") or getattr(request, "user")["id"]
         course_list = fetchall_dict(SelectMap.course_list_by_user_id, (user_id, ), GeneralObject)
         if course_list:
+            for course in course_list:
+                action = fetchone_dict(SelectMap.action_list_by_course_id, (course.id, ), GeneralObject)
+                course.picture = action.picture if action else default_url
             resp.data = {
                 "course_list": [course.data for course in course_list],
                 "count": len(course_list)
