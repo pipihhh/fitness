@@ -226,6 +226,24 @@ class SelectMap(object):
         WHERE user_id=%s AND delete_flag=0 AND id>%s ORDER BY id LIMIT %s
     """
 
+    comment_list_by_user = """
+        SELECT com.id as comment_id,com.content as content,com.create_time as create_time,nick_name
+        FROM ezgym.comment com INNER JOIN ezgym.blog bl ON com.blog_id=bl.id
+        WHERE bl.user_id=%s AND bl.delete_flag=0 AND com.delete_flag=0 AND com.user_id!=%s
+    """
+
+    reply_list_by_user = """
+        SELECT com.id as comment_id,com.content as comment_content,r.content as reply_content,r.create_time,r.nick_name as reply_nick_name
+        FROM ezgym.comment com INNER JOIN ezgym.reply r ON com.id=r.comment_id
+        WHERE com.user_id=%s AND com.delete_flag=0 AND r.delete_flag=0 AND r.user_id!=%s
+    """
+
+    reply_list_by_reply = """
+        SELECT r1.id as reply_id,r2.content,r2.create_time,r2.nick_name,r1.comment_id
+        FROM ezgym.reply r1 INNER JOIN ezgym.reply r2 ON r1.id=r2.reply_id
+        WHERE r1.delete_flag=0 AND r2.delete_flag=0 AND r1.user_id=%s AND r2.user_id!=%s
+    """
+
     reply_personal = """
         SELECT id, comment_id, create_time, user_id, nick_name, reply_id, content
         FROM ezgym.reply WHERE delete_flag=0 AND comment_id=%s ORDER BY reply_id

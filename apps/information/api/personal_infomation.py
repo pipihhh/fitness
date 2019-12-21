@@ -54,19 +54,26 @@ class PersonalInfo(Resource):
         }
 
     def _comment_info(self, resp):
-        user_id = request.args.get("user_id") or getattr(request, "user")["id"]
-        query_id = request.args.get("id", 0)
-        offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
-        comment_list = fetchall_dict(SelectMap.comment_personal, (user_id, query_id, offset), GeneralObject)
-        if not comment_list:
-            raise UserDoesNotExistException("暂无评论")
+        user_id = request.user["id"]
+        # 获取别人评价我的博客的信息
+        comment_list = fetchall_dict(SelectMap.comment_list_by_user, (user_id, user_id), GeneralObject)
         for comment in comment_list:
-            reply_list = fetchall_dict(SelectMap.reply_personal, (comment.id, ), GeneralObject)
-            comment.reply_list = [reply.data for reply in reply_list]
+            comment.is_comment = True
+        reply_list = fetchall_dict(SelectMap.reply_list_by_user, (user_id, user_id), GeneralObject)
+        for reply in reply_list:
+            reply.is_comment = False
+        reply_reply_list = fetchall_dict(SelectMap.reply_list_by_reply, (user_id, user_id), GeneralObject)
+        for reply in reply_reply_list:
+            reply.is_comment = False
+        if not comment_list and reply_reply_list and reply_list:
+            raise UserDoesNotExistException("暂无评论")
+        comment_list.extend(reply_list)
+        comment_list.extend(reply_reply_list)
+        comment_list.sort(key=lambda x: x.create_time)
+        comment_list.reverse()
         resp.data = {
-            "comment_list": [comment.data for comment in comment_list],
-            "count": len(comment_list), "query_id": comment_list[-1].id, "last_query_id": query_id,
-            "offset": offset
+            "ret_list": [comment.data for comment in comment_list],
+            "count": len(comment_list)
         }
 
     def _get_content(self, content):

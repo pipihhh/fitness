@@ -4,7 +4,7 @@ from apps.user.api.user_list import UserListValid
 from apps.search.api.searcher import _lt
 from general.response import Response
 from general.sql_map import SelectMap
-from general.db_pool import fetchall_dict
+from general.db_pool import fetchall_dict, fetchone_dict
 from general.exception import UserDoesNotExistException, InvalidArgumentException
 from utils.post_template import post
 from utils.general_object import GeneralObject, create_cmp_with_class
@@ -60,25 +60,39 @@ class BlogList(Resource):
         else:
             raise UserDoesNotExistException("数据不存在")
 
+    # noinspection DuplicatedCode
     def _comment_list(self, resp):
         user_id = request.args.get("id") or request.user["id"]
         blog_list = fetchall_dict(SelectMap.blog_list_comment, (user_id, user_id), GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
+        self._init_info(blog_list, user_id)
         resp.data = {
             "blog_list": [blog.data for blog in blog_list],
             "count": len(blog_list)
         }
 
+    # noinspection DuplicatedCode
     def _upper_list(self, resp):
         user_id = request.args.get("id") or request.user["id"]
         blog_list = fetchall_dict(SelectMap.blog_list_upper, (user_id, user_id), GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
+        self._init_info(blog_list, user_id)
         resp.data = {
             "blog_list": [blog.data for blog in blog_list],
             "count": len(blog_list)
         }
+
+    def _init_info(self, blog_list, user_id):
+        user = fetchone_dict(SelectMap.user_info_by_user_id, (user_id, ), GeneralObject)
+        for blog in blog_list:
+            blog.nick_name = user.nick_name
+            self._set_comment_count(blog)
+
+    def _set_comment_count(self, blog):
+        comment = fetchone_dict(SelectMap.comment_and_reply_count_by_blog, (blog.id,), GeneralObject)
+        blog.comment_count = comment.count
 
 
 class BlogListValid(UserListValid):
