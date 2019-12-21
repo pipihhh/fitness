@@ -171,16 +171,16 @@ class SelectMap(object):
     """
 
     blog_list_comment = """
-        SELECT id, user_id, title, picture, create_time, "upper" 
+        SELECT id, user_id, title, picture, create_time, `upper` 
         FROM ezgym.blog 
         WHERE id IN (SELECT com.blog_id
         FROM ezgym.comment com LEFT JOIN ezgym.reply r ON com.id=r.comment_id
         WHERE r.user_id=%s OR com.user_id=%s GROUP BY com.id)
-        ORDER BY "upper" DESC,create_time DESC
+        ORDER BY `upper` DESC,create_time DESC
     """
 
     blog_list_upper = """
-        SELECT b.id as id,title,picture,b.user_id as user_id,b.create_time as create_time,"upper"
+        SELECT b.id as id,title,picture,b.user_id as user_id,b.create_time as create_time,`upper`
         FROM ezgym.blog b INNER JOIN ezgym.upper_log ul ON b.id=ul.blog_id
         WHERE b.user_id=%s AND ul.user_id=%s AND b.delete_flag=0 AND ul.delete_flag=0
     """
@@ -255,11 +255,11 @@ class SelectMap(object):
     """
 
     fans_info = """
-        SELECT count(1) as "count" FROM ezgym.follow WHERE to_user=%s
+        SELECT count(1) as "count" FROM ezgym.follow WHERE from_user=%s
     """
 
     follow_info = """
-        SELECT count(1) as 'count' FROM ezgym.follow WHERE from_user=%s
+        SELECT count(1) as 'count' FROM ezgym.follow WHERE to_user=%s
     """
 
     follow_valid = """
