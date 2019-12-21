@@ -180,9 +180,20 @@ class SelectMap(object):
     """
 
     blog_list_upper = """
-        SELECT b.id as id,title,picture,b.user_id as user_id,b.create_time as create_time,`upper`
+        SELECT b.id,title,picture,b.user_id,b.create_time as create_time,`upper`,ui.nick_name
         FROM ezgym.blog b INNER JOIN ezgym.upper_log ul ON b.id=ul.blog_id
-        WHERE b.user_id=%s AND ul.user_id=%s AND b.delete_flag=0 AND ul.delete_flag=0
+        INNER JOIN ezgym.user_info ui ON ui.user_id=b.user_id
+        WHERE b.user_id=%s AND ul.user_id=%s AND b.delete_flag=0 AND ul.delete_flag=0 AND ui.delete_flag=0
+    """
+
+    blog_list_circle = """
+        SELECT bl.id, bl.user_id, title, bl.picture, bl.create_time, `upper`,nick_name
+        FROM ezgym.blog bl INNER JOIN ezgym.user_info ui ON bl.user_id=ui.user_id
+        WHERE bl.user_id=%s OR bl.user_id IN (
+            SELECT fl.to_user 
+            FROM ezgym.blog bl INNER JOIN ezgym.follow fl ON bl.user_id=fl.from_user
+            WHERE bl.delete_flag=0 AND fl.to_user=%s
+        ) AND ui.delete_flag=0 ORDER BY bl.upper DESC,bl.create_time DESC 
     """
 
     action_list_by_course_id = """
@@ -227,20 +238,26 @@ class SelectMap(object):
     """
 
     comment_list_by_user = """
-        SELECT com.id as comment_id,com.content as content,com.create_time as create_time,nick_name
+        SELECT com.id as comment_id,com.content as content,com.create_time as create_time,nick_name,bl.title,bl.picture,
+        bl.id as blog_id
         FROM ezgym.comment com INNER JOIN ezgym.blog bl ON com.blog_id=bl.id
         WHERE bl.user_id=%s AND bl.delete_flag=0 AND com.delete_flag=0 AND com.user_id!=%s
     """
 
     reply_list_by_user = """
-        SELECT com.id as comment_id,com.content as comment_content,r.content as reply_content,r.create_time,r.nick_name as reply_nick_name
+        SELECT com.id as comment_id,com.content as comment_content,r.content as reply_content,r.create_time,r.nick_name as reply_nick_name,
+        bl.title,bl.picture,bl.id as blog_id
         FROM ezgym.comment com INNER JOIN ezgym.reply r ON com.id=r.comment_id
+        INNER JOIN ezgym.blog bl ON com.blog_id=bl.id
         WHERE com.user_id=%s AND com.delete_flag=0 AND r.delete_flag=0 AND r.user_id!=%s
     """
 
     reply_list_by_reply = """
-        SELECT r1.id as reply_id,r2.content,r2.create_time,r2.nick_name,r1.comment_id
+        SELECT r1.id as reply_id,r2.create_time,r2.nick_name,r1.comment_id,title,picture,bl.id as blog_id,
+        r1.content as commentedByYou,r2.content as othersCommentedContent
         FROM ezgym.reply r1 INNER JOIN ezgym.reply r2 ON r1.id=r2.reply_id
+        INNER JOIN ezgym.comment com ON com.id=r1.comment_id
+        INNER JOIN ezgym.blog bl ON bl.id=com.blog_id
         WHERE r1.delete_flag=0 AND r2.delete_flag=0 AND r1.user_id=%s AND r2.user_id!=%s
     """
 
@@ -398,4 +415,12 @@ class UpdateMap(object):
 
     collect_rollback = """
         UPDATE ezgym.collect_course SET delete_flag=0 WHERE user_id=%s AND course_id=%s AND delete_flag=1
+    """
+
+    reply_nick_name = """
+        UPDATE ezgym.reply SET nick_name=%s WHERE user_id=%s
+    """
+
+    comment_nick_name = """
+        UPDATE ezgym.comment SET nick_name=%s WHERE user_id=%s
     """

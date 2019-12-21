@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask import request, current_app, jsonify
 from apps.user.api.user_list import UserListValid
 from apps.search.api.searcher import _lt
+from conf.permission import permission_valid, NORMAL
 from general.response import Response
 from general.sql_map import SelectMap
 from general.db_pool import fetchall_dict, fetchone_dict
@@ -74,11 +75,16 @@ class BlogList(Resource):
 
     # noinspection DuplicatedCode
     def _upper_list(self, resp):
+        """
+        取到当前对应id用户的所有的点赞过的blog
+        """
         user_id = request.args.get("id") or request.user["id"]
         blog_list = fetchall_dict(SelectMap.blog_list_upper, (user_id, user_id), GeneralObject)
         if not blog_list:
             raise UserDoesNotExistException("数据不存在")
-        self._init_info(blog_list, user_id)
+        # self._init_info(blog_list, user_id)
+        for blog in blog_list:
+            self._set_comment_count(blog)
         resp.data = {
             "blog_list": [blog.data for blog in blog_list],
             "count": len(blog_list)
@@ -93,6 +99,29 @@ class BlogList(Resource):
     def _set_comment_count(self, blog):
         comment = fetchone_dict(SelectMap.comment_and_reply_count_by_blog, (blog.id,), GeneralObject)
         blog.comment_count = comment.count
+
+    def _circle_list(self, resp):
+        """
+        好友圈博客列表的接口
+        """
+        try:
+            user_id = request.user["id"]
+        except (AttributeError, KeyError):
+            resp.data = {
+                "msg": "失效的token"
+            }
+            resp.errno = 1
+            resp.code = 405
+            return
+        blog_list = fetchall_dict(SelectMap.blog_list_circle, (user_id, user_id), GeneralObject)
+        if not blog_list:
+            raise UserDoesNotExistException("暂无数据")
+        for blog in blog_list:
+            self._set_comment_count(blog)
+        resp.data = {
+            "blog_list": [blog.data for blog in blog_list],
+            "count": len(blog_list)
+        }
 
 
 class BlogListValid(UserListValid):

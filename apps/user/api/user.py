@@ -11,6 +11,7 @@ from general.trace import trace
 from general.db_pool import *
 from general.password_handler import md5
 from general.sql_map import InsertMap, SelectMap, DeleteMap, UpdateMap
+from utils.general_object import GeneralObject
 from utils.error_handler import init_key_error_handler
 from utils.idempotent_request import idempotent
 from utils.date_utils import get_exp_str, get_now
@@ -24,12 +25,12 @@ parser.add_argument("account", type=str, required=True)  # 账号信息
 parser.add_argument("password", type=str, required=True)  # 密码信息
 parser.add_argument("permission", type=int, required=True)  # 权限信息 目前只有1和255 详见conf/permission
 parser.add_argument("phone", type=str, required=True)  # 电话号 必须是11位
-parser.add_argument("email", type=str)   # 电子邮件 可为空 必须符合电子邮件的格式
+parser.add_argument("email", type=str)  # 电子邮件 可为空 必须符合电子邮件的格式
 parser.add_argument("gender", type=int, required=True)  # 0男1女
-parser.add_argument("age", type=int, required=True)   # 年龄
+parser.add_argument("age", type=int, required=True)  # 年龄
 parser.add_argument("nick_name", type=str, required=True)  # 昵称
-parser.add_argument("description", type=str)   # 描述 可为空
-parser.add_argument("avatar", type=str)   # 头像文件名
+parser.add_argument("description", type=str)  # 描述 可为空
+parser.add_argument("avatar", type=str)  # 头像文件名a
 
 
 class User(Resource):
@@ -133,7 +134,7 @@ class User(Resource):
         response = Response()
         connection = pool.connection()
         try:
-            tag = request.json["tag"]
+            tag = request.json.get("tag", "all")
             user_id = request.json.get("id") or getattr(g, "user")["id"]
             getattr(self, "_update_" + tag)(connection, user_id)
             response.data = {"msg": "ok"}
@@ -202,6 +203,10 @@ class User(Resource):
             user_args = [params["account"], md5(params["password"]), user_id]
             update_sql_execute(cursor, UpdateMap.update_user_info_by_user_id, user_info_args)
             update_sql_execute(cursor, UpdateMap.update_user_by_id, user_args)
+            user = fetchone_dict(SelectMap.user_info_by_user_id, (user_id,), GeneralObject)
+            if user.nick_name != params["nick_name"]:
+                execute_sql(UpdateMap.reply_nick_name, (params["nick_name"], user_id))
+                execute_sql(UpdateMap.comment_nick_name, (params["nick_name"], user_id))
             connection.commit()
         except Exception:
             connection.rollback()
