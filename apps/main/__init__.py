@@ -36,6 +36,7 @@ def create_app():
     api.add_resource(reply.reply.Reply, "/api/reply")
     api.add_resource(study.study.Study, "/api/study")
     api.add_resource(follow.follow_list.FollowList, "/api/follow_list")
+    api.add_resource(comment.comment_list.CommentList, "/api/comment_list")
     return app
 
 

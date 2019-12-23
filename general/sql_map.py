@@ -244,6 +244,18 @@ class SelectMap(object):
         WHERE bl.user_id=%s AND bl.delete_flag=0 AND com.delete_flag=0 AND com.user_id!=%s
     """
 
+    comment_list_by_blog = """
+        SELECT com.id,content,com.create_time,blog_id,ui.user_id,ui.nick_name,ui.avatar
+        FROM ezgym.comment com LEFT JOIN ezgym.user_info ui ON com.user_id=ui.user_id
+        WHERE com.delete_flag=0 AND blog_id=%s ORDER BY com.create_time DESC
+    """
+
+    reply_list_by_comment_id = """
+        SELECT r.id,content,comment_id,r.create_time,ui.nick_name,ui.avatar,ui.user_id,reply_id
+        FROM ezgym.reply r LEFT JOIN ezgym.user_info ui ON r.user_id=ui.user_id
+        WHERE comment_id=%s AND r.delete_flag=0 ORDER BY r.create_time DESC
+    """
+
     reply_list_by_user = """
         SELECT com.id as comment_id,com.content as comment_content,r.content as reply_content,r.create_time,r.nick_name as reply_nick_name,
         bl.title,bl.picture,bl.id as blog_id
@@ -344,6 +356,10 @@ class DeleteMap(object):
 
     reply_by_comment_id = """
         UPDATE ezgym.reply SET delete_flag=1 WHERE comment_id=%s AND delete_flag=0
+    """
+
+    reply_by_id = """
+        UPDATE ezgym.reply SET delete_flag=1 WHERE id=%s OR reply_id=%s
     """
 
     action_by_id = """

@@ -1,1 +1,1 @@
-from apps.comment.api import comment
+from apps.comment.api import comment, comment_list
