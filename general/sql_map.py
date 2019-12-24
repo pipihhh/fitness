@@ -142,7 +142,7 @@ class SelectMap(object):
     """
 
     blog_list_by_id = """
-        SELECT b.id as id,b.user_id as user_id,title,picture,b.create_time as create_time,`upper`,nick_name
+        SELECT b.id as id,b.user_id as user_id,title,picture,b.create_time as create_time,`upper`,nick_name,avatar
         FROM ezgym.blog b INNER JOIN ezgym.user_info ui ON b.user_id=ui.user_id
         WHERE b.id>%s AND b.delete_flag=0 AND ui.delete_flag=0 ORDER BY b.id LIMIT %s
     """
@@ -158,9 +158,9 @@ class SelectMap(object):
     """
 
     blog_list_by_user = """
-        SELECT u.id as user_id,title,picture,`upper` ,create_time,b.id as id
-        FROM ezgym.blog b INNER JOIN ezgym.user u ON u.id=b.user_id
-        WHERE u.id=%s AND b.delete_flag=0 AND b.id>%s
+        SELECT u.id as user_id,title,picture,`upper` ,create_time,b.id as id,avatar,nick_name
+        FROM ezgym.blog b INNER JOIN ezgym.user_info u ON u.user_id=b.user_id
+        WHERE u.user_id=%s AND b.delete_flag=0 AND b.id>%s
         ORDER BY b.create_time DESC LIMIT %s,%s
     """
 
@@ -171,23 +171,23 @@ class SelectMap(object):
     """
 
     blog_list_comment = """
-        SELECT id, user_id, title, picture, create_time, `upper` 
-        FROM ezgym.blog 
+        SELECT id, user_id, title, picture, create_time, `upper`,nick_name,avatar
+        FROM ezgym.blog INNER JOIN ezgym.user_info ui ON blog.user_id=ui.user_id
         WHERE id IN (SELECT com.blog_id
         FROM ezgym.comment com LEFT JOIN ezgym.reply r ON com.id=r.comment_id
-        WHERE r.user_id=%s OR com.user_id=%s GROUP BY com.id)
+        WHERE r.user_id=%s OR com.user_id=%s GROUP BY com.id) AND ui.delete_flag=0 AND blog.delete_flag=0
         ORDER BY `upper` DESC,create_time DESC
     """
 
     blog_list_upper = """
-        SELECT b.id,title,picture,b.user_id,b.create_time as create_time,`upper`,ui.nick_name
+        SELECT b.id,title,picture,b.user_id,b.create_time as create_time,`upper`,ui.nick_name,avatar
         FROM ezgym.blog b INNER JOIN ezgym.upper_log ul ON b.id=ul.blog_id
         INNER JOIN ezgym.user_info ui ON ui.user_id=b.user_id
         WHERE b.user_id=%s AND ul.user_id=%s AND b.delete_flag=0 AND ul.delete_flag=0 AND ui.delete_flag=0
     """
 
     blog_list_circle = """
-        SELECT bl.id, bl.user_id, title, bl.picture, bl.create_time, `upper`,nick_name
+        SELECT bl.id, bl.user_id, title, bl.picture, bl.create_time, `upper`,nick_name,avatar
         FROM ezgym.blog bl INNER JOIN ezgym.user_info ui ON bl.user_id=ui.user_id
         WHERE bl.user_id=%s OR bl.user_id IN (
             SELECT fl.to_user 

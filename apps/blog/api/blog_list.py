@@ -54,6 +54,8 @@ class BlogList(Resource):
                                   create_cmp_with_class(_lt))
         if blog_list:
             blog_list.sort()
+            for blog in blog_list:
+                self._set_comment_count(blog)
             response.data = {
                 "blog_list": [blog.data for blog in blog_list],
                 "count": len(blog_list), "page": page,

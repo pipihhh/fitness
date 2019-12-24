@@ -42,7 +42,6 @@ class Blog(Resource):
             })
         except Exception as e:
             init_key_error_handler(response, e, "信息:")
-        print(response.dict_data)
         return jsonify(response.dict_data)
 
     @idempotent

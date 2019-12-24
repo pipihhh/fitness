@@ -45,5 +45,5 @@ class Searcher(Resource):
 
 def _lt(self, o):
     if self.upper == o.upper:
-        return self.create_time > o.create_time
+        return o.create_time > self.create_time
     return self.upper > o.upper

@@ -24,4 +24,4 @@ def create_cmp_with_class(cmp):
             }
         )
     else:
-        raise ValueError("%s is not a callable" % cmp.__name__)
+        raise ValueError("%s is not callable" % cmp.__name__)
