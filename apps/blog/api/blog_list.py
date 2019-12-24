@@ -36,7 +36,7 @@ class BlogList(Resource):
             for blog in blog_list:
                 self._set_comment_count(blog)
             response.data = {
-                "blog_list": [blog.__dict__ for blog in blog_list],
+                "blog_list": [blog.data for blog in blog_list],
                 "query_id": blog_list[-1].id, "last_query_id": _id, "page_offset": offset,
                 "count": len(blog_list)
             }
