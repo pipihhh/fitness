@@ -31,8 +31,10 @@ class BlogList(Resource):
         _id = request.args.get("id", 0)
         offset = request.args.get("offset", current_app.config["PAGE_OFFSET"])
         offset = int(offset)
-        blog_list = fetchall_dict(SelectMap.blog_list_by_id, (_id, offset), BlogTemplate)
+        blog_list = fetchall_dict(SelectMap.blog_list_by_id, (_id, offset), GeneralObject)
         if blog_list:
+            for blog in blog_list:
+                self._set_comment_count(blog)
             response.data = {
                 "blog_list": [blog.__dict__ for blog in blog_list],
                 "query_id": blog_list[-1].id, "last_query_id": _id, "page_offset": offset,
@@ -101,6 +103,11 @@ class BlogList(Resource):
     def _set_comment_count(self, blog):
         comment = fetchone_dict(SelectMap.comment_and_reply_count_by_blog, (blog.id,), GeneralObject)
         blog.comment_count = comment.count
+        flag = False
+        if hasattr(request, "user"):
+            upper = fetchone_dict(SelectMap.upper_by_user_and_blog, (blog.id, request.user["id"]), GeneralObject)
+            flag = True if upper else False
+        blog.isUpper = flag
 
     def _circle_list(self, resp):
         """
