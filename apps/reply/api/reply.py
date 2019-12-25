@@ -1,8 +1,8 @@
 from utils.generic_import import *
 
 parse = reqparse.RequestParser()
-parse.add_argument("comment_id", type=int, required=True)
-parse.add_argument("content", type=str, required=True)
+parse.add_argument("comment_id", type=int)
+parse.add_argument("content", type=str)
 parse.add_argument("reply_id", type=int)
 
 
@@ -20,7 +20,7 @@ class Reply(Resource):
             now = datetime.datetime.now()
             _id = getattr(request, "user")["id"]
             user = fetchone_dict(SelectMap.user_info_by_user_id, (_id,), GeneralObject)
-            reply_id = getattr(req, "reply_id") or 0
+            reply_id = getattr(req, "reply_id", None) or 0
             rowid = execute_sql(InsertMap.reply, (
                 req.comment_id, now, _id, user.nick_name,
                 reply_id, req.content
@@ -29,7 +29,7 @@ class Reply(Resource):
                 raise InvalidArgumentException("操作失败")
             resp.data = {
                 "create_time": now, "id": rowid, "comment_id": req.comment_id,
-                "user_id": _id, "nick_name": user.nick_name, "reply_id": reply_id
+                "user_id": _id, "nick_name": user.nick_name, "reply_id": reply_id, "content": req.content
             }
         except Exception as e:
             init_error_message(resp, message=str(e))
@@ -56,6 +56,12 @@ class Reply(Resource):
 
 
 class ReplyValid(BaseValid):
+    def valid(self):
+        if not hasattr(self, "content"):
+            raise InvalidArgumentException("缺少参数content")
+        if not hasattr(self, "comment_id"):
+            raise InvalidArgumentException("缺少参数comment_id")
+
     def comment_id_valid(self, comment_id):
         comment = fetchone_dict(SelectMap.comment_valid, (comment_id,), GeneralObject)
         if comment is None:
