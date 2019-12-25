@@ -95,3 +95,22 @@ class PersonalInfo(Resource):
             }
         else:
             raise UserDoesNotExistException("暂无选课")
+
+    def _user_info(self, resp):
+        current_user_id = getattr(request, "user", {}).get("id")
+        user_id = request.args.get("id") or getattr(request, "user")["id"]
+        user = fetchone_dict(SelectMap.user_info_by_user_id, (user_id, ), GeneralObject)
+        if user is None:
+            raise UserDoesNotExistException("错误的id")
+        if user.permission == ADMIN:
+            current_user = fetchone_dict(SelectMap.user_info_by_user_id, (current_user_id, ), GeneralObject)
+            if current_user is None or current_user.permission & ADMIN != ADMIN:
+                resp.code = PERMISSION_ERROR
+                resp.data = {"msg": "权限不足"}
+                resp.errno = 1
+                return
+        resp.data = {
+            "id": user.id, "phone": user.phone, "email": user.email,
+            "gender": user.gender, "avatar": user.avatar, "description": user.description,
+            "nick_name": user.nick_name, "create_time": user.create_time, "age": user.age
+        }
