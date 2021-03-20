@@ -6,7 +6,7 @@ Flask==1.1.1
 Flask-RESTful==0.3.7
 Flask-Script==2.0.6
 itsdangerous==1.1.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 Pillow==6.2.1
 PyMySQL==0.9.3
