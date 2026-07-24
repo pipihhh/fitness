@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ezgym · API 文档 —— 真实端点契约</title>
+  <meta name="description" content="ezgym 健身论坛后端 API 文档：按域分组的真实 RESTful 端点、鉴权标记、请求参数与 {errno,code,data} 响应契约，支持前端搜索过滤。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#doc-main">跳到端点列表</a>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html" aria-label="ezgym 首页">
+        <svg class="brand__mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <rect x="2.5" y="3" width="19" height="18" rx="2"/><line x1="7" y1="12" x2="17" y2="12" stroke-width="2"/>
+          <rect x="4.5" y="9.5" width="2.4" height="5" rx=".6"/><rect x="17.1" y="9.5" width="2.4" height="5" rx=".6"/>
+        </svg>
+        <span class="brand__name"><b>ez</b>gym</span>
+        <span class="brand__tag">API 文档</span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a href="index.html#domains">领域</a>
+        <a href="index.html#architecture">架构</a>
+        <a class="nav__cta" href="index.html">← 返回落地页</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="doc">
+      <!-- 左侧域导航 -->
+      <aside class="doc__aside" aria-label="域导航与搜索">
+        <div class="doc__search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/></svg>
+          <input type="search" id="doc-search-input" placeholder="搜索端点 / 路径 / 方法…" aria-label="搜索端点">
+        </div>
+        <p class="doc__count" id="doc-count">加载中…</p>
+        <nav aria-label="域导航">
+          <ul class="doc__nav" id="doc-nav"></ul>
+        </nav>
+      </aside>
+
+      <!-- 主内容 -->
+      <main class="doc__main" id="doc-main">
+        <div class="doc__intro">
+          <p class="eyebrow">restful api reference</p>
+          <h1>API 契约</h1>
+          <p>
+            所有端点返回统一信封 <span class="mono volt">{ errno, code, data }</span>——<code class="mono">errno=0</code> 表示成功，
+            HTTP 状态码与 <code class="mono">code</code> 对齐。鉴权用 <code class="mono">@login_required</code> / <code class="mono">@admin_required</code>。
+          </p>
+          <p>
+            分页统一游标：<span class="mono">cursor</span>（默认 0）+ <span class="mono">limit</span>，返回
+            <span class="mono">{ items, next_cursor, count }</span>。跨域取数只经对方 service 门面。
+          </p>
+          <span class="contract-chip">共 <b id="endpoint-total">…</b> 个真实端点 · 8 个域 · 点击任意端点展开细节</span>
+        </div>
+
+        <!-- 域块由 api.js 注入 -->
+        <p class="no-result hidden" id="doc-no-result">没有匹配的端点，换个关键词试试。</p>
+      </main>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <p class="site-footer__meta">
+        ezgym 健身论坛后端 · API 文档（静态渲染自真实契约）<br>
+        <a href="index.html" class="volt">← 返回落地页</a>
+      </p>
+      <p class="site-footer__badge">毕业设计 · 非商用</p>
+    </div>
+  </footer>
+
+  <!-- 先加载数据，再加载渲染器 -->
+  <script src="assets/api-data.js"></script>
+  <script src="assets/api.js"></script>
+</body>
+</html>
