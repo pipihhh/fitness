@@ -1,0 +1,43 @@
+[project]
+name = "ezgym"
+version = "0.1.0"
+description = "ezgym 健身论坛后端（分层重写）"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.1.3",
+    "flask-restful>=0.3.10",
+    "flask-sqlalchemy>=3.1",
+    "flask-migrate>=4.0",
+    "flask-jwt-extended>=4.6",
+    "flask-marshmallow>=1.2",
+    "marshmallow>=3.21",
+    "marshmallow-sqlalchemy>=1.0",
+    "flask-limiter>=3.8",
+    "flask-cors>=5.0",
+    "sqlalchemy>=2.0",
+    "pymysql>=1.1.1",
+    "cryptography",
+    "bcrypt>=4.2",
+    "captcha>=0.6",
+    "pillow>=12.3",
+    "python-dotenv>=1.0",
+    "email-validator",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ezgym"]
