@@ -1,0 +1,62 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ezgym — 分层 Flask 健身论坛 API">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#13171E"/>
+      <stop offset="1" stop-color="#1C232E"/>
+    </linearGradient>
+    <linearGradient id="ember" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FF6A2C"/>
+      <stop offset="1" stop-color="#F2B84B"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#D6F24B" stop-opacity="0"/>
+      <stop offset="0.15" stop-color="#D6F24B" stop-opacity="1"/>
+      <stop offset="0.85" stop-color="#D6F24B" stop-opacity="1"/>
+      <stop offset="1" stop-color="#D6F24B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" fill="none" stroke="#EAEEF3" stroke-opacity="0.10"/>
+
+  <!-- corner ticks (instrument panel motif) -->
+  <g stroke="#7B8698" stroke-width="1.5">
+    <path d="M28 20 v18 M28 20 h18"/>
+    <path d="M1172 20 v18 M1172 20 h-18"/>
+    <path d="M28 280 v-18 M28 280 h18"/>
+    <path d="M1172 280 v-18 M1172 280 h-18"/>
+  </g>
+
+  <!-- eyebrow -->
+  <text x="64" y="86" fill="#7B8698" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="15" letter-spacing="6">GRADUATION PROJECT · NON-COMMERCIAL</text>
+
+  <!-- wordmark -->
+  <text x="62" y="170" fill="#EAEEF3" font-family="'Oswald','Archivo Narrow',sans-serif" font-size="104" font-weight="700" letter-spacing="2">ez<tspan fill="#FF6A2C">gym</tspan></text>
+
+  <!-- tagline -->
+  <text x="66" y="212" fill="#EAEEF3" font-family="Inter,system-ui,sans-serif" font-size="21" fill-opacity="0.86">把一个健身论坛，当成引擎来造</text>
+  <text x="66" y="240" fill="#7B8698" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="14" letter-spacing="1">a layered Flask REST API · SQLAlchemy 2 · JWT · marshmallow · 221 tests</text>
+
+  <!-- BURN GAUGE tick strip (signature element) -->
+  <g transform="translate(66,262)">
+    <line x1="0" y1="0" x2="1068" y2="0" stroke="url(#fade)" stroke-width="1.5" stroke-opacity="0.5"/>
+    <g stroke="#7B8698">
+      <line x1="0" y1="-5" x2="0" y2="5"/><line x1="89" y1="-3" x2="89" y2="3"/><line x1="178" y1="-3" x2="178" y2="3"/>
+      <line x1="267" y1="-3" x2="267" y2="3"/><line x1="356" y1="-3" x2="356" y2="3"/>
+      <line x1="445" y1="-5" x2="445" y2="5" stroke="#D6F24B"/>
+      <line x1="534" y1="-3" x2="534" y2="3"/><line x1="623" y1="-3" x2="623" y2="3"/>
+      <line x1="712" y1="-3" x2="712" y2="3"/><line x1="801" y1="-3" x2="801" y2="3"/>
+      <line x1="890" y1="-5" x2="890" y2="5" stroke="#D6F24B"/>
+      <line x1="979" y1="-3" x2="979" y2="3"/><line x1="1068" y1="-5" x2="1068" y2="5"/>
+    </g>
+    <!-- ember pointer -->
+    <path d="M712 -14 l7 12 h-14 z" fill="url(#ember)"/>
+  </g>
+
+  <!-- domain chips -->
+  <g font-family="'JetBrains Mono',ui-monospace,monospace" font-size="12" fill="#7B8698" text-anchor="end">
+    <text x="1136" y="120">identity · course · challenge</text>
+    <text x="1136" y="142">content · interaction · social</text>
+    <text x="1136" y="164">search · notification · media</text>
+  </g>
+</svg>
